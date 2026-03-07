@@ -119,7 +119,7 @@ s.boot;
 { SinOsc.ar(880).dup(2) }.scope
 
 // MIDIノートナンバーを周波数に変換する
-// .midicps（midi cents per second）メソッドを使います
+// .midicps（MIDIノートナンバーをHz＝サイクル毎秒に変換）メソッドを使います
 // A4 = MIDIノート 69
 69.midicps.postln    // -> 440.0Hz
 57.midicps.postln    // -> 220.0Hz (A3)
@@ -802,7 +802,7 @@ SynthDef("SuperSaw",
     // 複数のSaw波を生成してミックス（各波を少しずつデチューン）
     sig = Mix.fill(voices, { arg i;
       // -detune 〜 +detune の範囲でデチューン（均等に分散）
-      var detuneAmount = detune * (i - (voices - 1) / 2) / (voices - 1);
+      var detuneAmount = detune * (i - ((voices - 1) / 2)) / (voices - 1);
       Saw.ar(freq * (1 + detuneAmount));
     });
 

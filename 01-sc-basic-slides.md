@@ -476,7 +476,7 @@ EDM/トランスで定番の分厚いサウンドが得られます。
 SynthDef("SuperSaw", { arg out=0, gate=1, freq=440, detune=0.15, cutoff=3000, rel=1.0, amp=0.3;
   var sig, env, voices = 5;
   sig = Mix.fill(voices, { |i|
-    var d = detune * (i - (voices-1)/2) / (voices-1);
+    var d = detune * (i - ((voices-1)/2)) / (voices-1);
     Saw.ar(freq * (1 + d));              // 各ボイスを均等にデチューン
   });
   sig = RLPF.ar(sig, cutoff, 0.3);      // ローパスフィルターで整える
