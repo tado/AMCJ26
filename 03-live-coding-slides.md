@@ -133,6 +133,14 @@ strudelディレクトリ内で `pnpm i` を実行
 
 `pnpm run osc` を実行してOSCサーバーを起動
 
+```powershell
+> @strudel/osc@1.3.2 server
+> node server.js
+
+[Sending OSC] 127.0.0.1:57120
+[Listening WS] ws://localhost:8080
+```
+
 ---
 
 ## Strudel + SuperDirt環境設定
@@ -144,6 +152,42 @@ SuperColliderを起動し、以下のコードを実行してSuperDirtを起動
 ```cpp
 SuperDirt.start;
 ```
+以下のような出力が表示されれば成功
+
+```powershell
+-> SuperDirt.start;
+...(中略)...
+Shared memory server interface initialized
+SuperDirt: listening on port 57120
+```
+---
+
+## Strudel + SuperDirt環境設定
+
+**StrudelからSuperDirtへの接続確認**
+
+[Strudel REPL](https://strudel.cc/)をブラウザで開きしょう。以下の簡単なコードで動作確認。
+
+```javascript
+$: s("bd cp [~ bd] hc*2").osc();
+
+$: s("supersaw(9, 16)")
+  .note(irand(8)).scale("C2:pentatonic")
+  .lpf(sine.slow(2).range(100, 12000))
+  .resonance(0.3).osc();
+``` 
+末尾の `.osc()` でStrudelからSuperDirtにOSCメッセージを送信している
+
+---
+
+## SuperDirt用のSynthDefの作成
+
+---
+
+## SuperDirt用のSynthDefの作成
+
+
+
 
 
 
