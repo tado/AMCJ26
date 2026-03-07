@@ -29,7 +29,7 @@ pre, code {
 
 ---
 
-![bg left:40%](https://bnn.co.jp/cdn/shop/files/9784802513456.jpg?height=1200&v=1761550726)
+![bg left:33%](https://bnn.co.jp/cdn/shop/files/9784802513456.jpg?height=1200&v=1761550726)
 
 ## 本日のワークショップの内容
 
@@ -43,7 +43,7 @@ pre, code {
 
 必要なアプリケーションをまずはインストールしていきましょう!
 
-![bg right:50%](https://upload.wikimedia.org/wikipedia/commons/6/60/SuperCollider_logo.svg)
+![bg right:33%](https://upload.wikimedia.org/wikipedia/commons/6/60/SuperCollider_logo.svg)
 
 macOS / Windows どちらでもOK
 - [SuperCollider](https://supercollider.github.io/)
@@ -54,7 +54,7 @@ macOS / Windows どちらでもOK
 
 ## 環境設定
 
-![bg right:50%](https://img.icons8.com/fluent/1200/github-copilot.jpg)
+![bg right:33%](https://img.icons8.com/fluent/1200/github-copilot.jpg)
 
 本日のワークショップでは、コード生成のAIのアカウントがあるとなお便利です!
 
@@ -69,7 +69,7 @@ macOS / Windows どちらでもOK
 
 画面を操作しながら解説していきます。
 
-![bg](./img/scide.jpg)
+![bg right:66%](./img/scide.jpg)
 
 ---
 
@@ -79,14 +79,14 @@ macOS / Windows どちらでもOK
 
 ## VScodeからSuperColliderを使う
 
-![bg right](https://repository-images.githubusercontent.com/657248114/d3c7b91a-b285-4d1e-8429-5de1acc5f61e)
+![bg right:33%](https://repository-images.githubusercontent.com/657248114/d3c7b91a-b285-4d1e-8429-5de1acc5f61e)
 
 SC IDEは便利ですが、VScodeを使用するとさらに様々なメリットが
 
 - コード補完
 - シンタックスハイライト
 - Git連携
-- **AIコード生成ツールとの連携** ←
+- **AIコード生成ツールとの連携 ← !!**
 
 ---
 
@@ -123,7 +123,7 @@ SuperCollider language server for Visual Studio Code
 
 ## VScodeからSuperColliderを使う
 
-![bg right:50%](./img/supercollider-vscoder.jpg)
+![bg left:33%](./img/supercollider-vscoder.jpg)
 
 - VScodeの拡張機能
 - “supercollider-vscode” で検索
@@ -170,3 +170,11 @@ C:\Program Files\SuperCollider-3.14.1
 ## AIコード生成を活用しながらSuperColliderをコーディング!!<br>最強の環境が実現しました!!
 
 ![bg](./img/sc-coding-with-ai.jpg)
+
+---
+
+## 本日の「その先」の内容
+
+- SuperColliderの基本をおさらい - 初歩からステップバイステップで
+- SuperColliderでvibe coding! - AIコード生成ツールを活用
+- Strudel + SuperColliderでライブコーディング
