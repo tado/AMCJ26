@@ -149,6 +149,9 @@ SuperColliderのコードを熟知したエージェントが爆誕!
 > SuperColliderで「ミニマルな反復メロディー」を演奏するPbindを作って。
 > 律旋法スケールを使い、音量とリズムをランダムに変化させて。
 
+**生成されたコード（例）:**
+
+[minimal-ritusen.scd](https://github.com/tado/AMCJ26/blob/main/AI-generated-code/minimal-ritusen.scd)
 
 ---
 
