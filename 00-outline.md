@@ -20,12 +20,14 @@ pre, code {
 }
 </style>
 
-## AMCJワークショップ
-
-# 「共鳴するコード、SuperColliderで創る音の世界」<br>実践とその先へ
+# AMCJワークショップ<br>共鳴するコード、SuperColliderで創る音の世界<br>- 実践とその先へ
 
 2026年3月14日
 田所淳
+
+---
+
+#   00: 準備編
 
 ---
 
@@ -143,7 +145,7 @@ export PATH="$PATH:/Applications/SuperCollider.app/Contents/MacOS"
 
 **Windows**: 環境変数のPATHに以下を追加
 
-```powerhsell
+```powershell
 C:\Program Files\SuperCollider-3.14.1
 ```
 
@@ -178,3 +180,20 @@ C:\Program Files\SuperCollider-3.14.1
 - SuperColliderの基本をおさらい - 初歩からステップバイステップで
 - SuperColliderでvibe coding! - AIコード生成ツールを活用
 - Strudel + SuperColliderでライブコーディング
+
+---
+
+## ウォーミングアップ
+
+![bg right:33%](./img/ai-learning.jpg)
+
+以下のGithubリポジトリをZipでダウンロード
+https://github.com/tado/AMCJ26
+
+(もしAIエージェントが使用できる方は) 以下のプロンプトでAIを賢くしておきましょう!
+
+  > 「sc-book-examples」フォルダ内のChapter01からChapter08のSuperColliderのファイルの内容を学習してください。
+
+---
+
+## それでは、SuperColliderの「その先」の世界へ<br>飛び込んでいきましょう!

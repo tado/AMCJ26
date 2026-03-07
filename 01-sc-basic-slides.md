@@ -18,12 +18,19 @@ pre, code {
   font-family: 'JetBrains Mono Slashed', 'Noto Sans JP';
   line-height: 1.3;
 }
+th, td {
+  font-size: 0.8em;
+}
 </style>
 
-# Sin波から始めるSuperColliderの基本
+# AMCJワークショップ<br>共鳴するコード、SuperColliderで創る音の世界<br>- 実践とその先へ
 
-**AMCJ ワークショップ**
-「共鳴するコード、SuperColliderで創る音の世界 - 実践とその先へ」
+2026年3月14日
+田所淳
+
+---
+
+# 01: Sin波から始めるSuperColliderの基本
 
 ---
 
@@ -143,10 +150,6 @@ var freq = 440, amp = 0.3;
 }.play )
 ```
 
----
-
-## 6. コントロール信号でパラメータを変化させる
-
 | UGen | 説明 |
 |------|------|
 | `SinOsc.kr(rate)` | 正弦波のLFO |
@@ -203,10 +206,6 @@ var freq = 440, amp = 0.3;
    |          *
  0 |___A__D__S__R___→ 時間
 ```
----
-
-## 8. エンベロープとは
-
 | 要素 | 意味 |
 |------|------|
 | **A** ttack | 発音〜最大音量までの時間 |
@@ -514,8 +513,10 @@ var freqs = [261.63, 329.63, 392.00];
 
 ## まとめ
 
+<div style="font-size: 0.5em">
+
 | テーマ | キーワード |
-|--------|-----------|
+|--- |--- |
 | 最初の一音 | `SinOsc.ar()`, `.play`, `.dup(2)` |
 | 音量・周波数 | `mul`, `freq`, `.midicps` |
 | 変数 | `var`, `~name` |
@@ -527,16 +528,4 @@ var freqs = [261.63, 329.63, 392.00];
 | 変調合成 | AM / RM / FM, C:M比, インデックス |
 | 応用 | FMシンセ, SuperSaw |
 
----
-
-## 次のステップ
-
-- **Pbind / Pattern** — パターンによる自動演奏・シーケンス
-- **Buffer / SamplePlayer** — サンプル音源の読み込みと再生
-- **Bus / Effect Chain** — バスを使ったエフェクトのルーティング
-- **OSC** — 外部アプリ（Max, Processing, Abletonなど）との連携
-- **Granular Synthesis** — グラニュラー合成
-- **Live Coding** — リアルタイムのパフォーマンス
-
-SuperColliderは非常に奥深いシステムです。
-今日学んだ基礎の上に、どんどん積み重ねていきましょう！
+</div>
