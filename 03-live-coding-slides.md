@@ -186,6 +186,122 @@ $: s("supersaw(9, 16)")
 
 ## SuperDirt用のSynthDefの作成
 
+それでは、いよいよSuperDirt用のSynthDefを作成してみましょう!
+
+まずは通常のSynthDefでシンプルなsine波のSynthDefを作成してみます
+
+```cpp
+(
+SynthDef(\mysine, {
+  arg out=0, freq=440, amp=0.5;
+  var sig = SinOsc.ar(freq).dup(2) * amp;
+  Out.ar(out, sig);
+}).add;
+)
+
+Synth(\mysine);
+
+Synth(\mysine);
+```
+
+---
+
+## SuperDirt用のSynthDefの作成
+
+SuperDirtで使用するためには、いくつか変更する必要あり。先程の`\mysine` SynthDefをSuperDirt用に変更してみましょう
+
+```cpp
+SuperDirt.start;
+
+(
+SynthDef(\mysine, {
+  arg out, freq, sustain = 1.0, pan;
+  var env = EnvGen.ar(Env.adsr(), timeScale:sustain, doneAction:2);
+	var sig = SinOsc.ar(freq);
+	Out.ar(out, DirtPan.ar(sig, ~dirt.numChannels, pan, env));
+}).add
+)
+```
+
+---
+
+## SuperDirt用のSynthDefの作成
+
+この`\mysine`をStrudelから演奏してみましょう
+
+```javascript
+$: s("mysine(9, 16)")
+  .note(irand(8)).scale("C4:pentatonic")
+  .pan(rand.range(0, 1))
+  .osc();
+```
+このコードは、StrudelからSuperDirtにOSCメッセージを送信して、`\mysine` SynthDefを演奏しています。`note`で音程を指定し、`pan`で左右の定位をランダムに設定しています。
+
+---
+
+## SuperDirt用のSynthDefの作成
+
+シンプルなSynthDefでも、SuperDirtのエフェクトと組み合わせることで、より複雑なサウンドを作り出すことができます。例えば、Saw波のSynthDefを作成してみましょう
+
+```cpp
+(
+SynthDef(\mysaw, {
+  arg out, freq, sustain = 1.0, pan;
+  var env = EnvGen.ar(Env.adsr(), timeScale:sustain, doneAction:2);
+	var sig = Saw.ar(freq);
+	Out.ar(out, DirtPan.ar(sig, ~dirt.numChannels, pan, env));
+}).add
+);
+```
+
+----
+
+## SuperDirt用のSynthDefの作成
+
+この`\mysaw`をStrudelから演奏してみましょう
+
+```javascript
+$: s("mysaw(9, 16)")
+  .note(irand(8)).scale("<C3:pentatonic C3:ritusen>")
+  .pan(rand.range(0, 1)).jux(rev)
+  .osc();
+```
+
+---
+
+## SuperDirt用のSynthDefの作成
+
+ここに、Strudelの様々なエフェクトを組み合わせてみますしょう
+
+```javascript
+$: s("mysaw(9, 16)")
+  .note(irand(8)).scale("<C3:pentatonic C3:ritusen>")
+  .pan(rand.range(0, 1)).jux(rev)
+  .lpf(rand.range(100, 1000)).resonance(0.3)
+  .delay(0.8).delayfeedback(0.7).delaytime((5/8))
+  .osc();
+```
+
+このコードは、`\mysaw`に、`lpf`や`resonance`でフィルターをかけたり、`delay`や`delayfeedback`でディレイエフェクトを追加しています。
+
+---
+
+## SuperDirt用のSynthDefの作成
+
+ここに、SuperDirtの様々なサンプルを組み合わせて、ライブコーディングを楽しんでみましょう!
+
+```javascript
+$: s("bd cp [~ bd] hc*2").osc();
+
+$: s("ifdrums(5, 8)").n(irand(3)).osc();
+
+$: s("mysaw(9, 16)")
+  .note(irand(8)).scale("<C3:pentatonic C3:ritusen>")
+  .pan(rand.range(0, 1)).jux(rev)
+  .lpf(rand.range(100, 1000)).resonance(0.3)
+  .delay(0.8).delayfeedback(0.5).delaytime((5/8))
+  .osc();
+```  
 
 
 
