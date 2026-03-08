@@ -30,502 +30,508 @@ th, td {
 
 ---
 
-# 01: Sin波から始めるSuperColliderの基本
+# 01: SuperColliderの基本
 
 ---
 
-## はじめに：サーバーを起動する
+## 完成イメージ
 
-SuperColliderはクライアント（言語）とサーバー（音声処理）に分かれています。
-音を鳴らす前に、まずオーディオサーバーを起動します。
+<style scoped>pre { font-size: 0.6em; }</style>
 
 ```cpp
-s.boot;
+SynthDef("mySynth", {
+  arg out = 0, gate = 1, freq = 440, detune = 1.005,
+      cutoff = 1200, cutfreq = 10.0, amp = 0.2;
+  var sig, cutsig, env;
+  sig = Mix.ar([
+    Saw.ar([freq / detune, freq * detune]),
+    Saw.ar([freq / detune, freq * detune] / detune),
+    Saw.ar([freq / detune, freq * detune] / detune / 2.0)
+  ]) / 3.0;
+  env = EnvGen.kr(Env.adsr(), gate, doneAction: 2);
+  sig = sig * env * amp;
+  cutsig = LFNoise2.kr([cutfreq, cutfreq * 1.5]).range(cutoff * 0.25, cutoff * 1.5);
+  sig = MoogFF.ar(sig, cutsig, mul: 2.0);
+  sig = GVerb.ar(sig, 100, 1.0);
+  Out.ar(out, sig);
+}).add;
 ```
 
-- 起動後、Post windowに `Server is running` と表示される
-- **コードの実行：** `Ctrl+Enter` / 選択範囲なら `Shift+Enter`
-- **全音を止める：** `Ctrl+.`（ピリオド）
+ステップバイステップでこれを作っていきます
 
 ---
 
-## 1. 最初の一音 — `SinOsc.ar()`
+## このセクションの内容
 
-SuperColliderで音を鳴らす最もシンプルなコード。
-
-```cpp
-{ SinOsc.ar() }.play
-```
-
-- `{ }` の中に音を生成する **UGen**（Unit Generator）を書く
-- `.play` でサーバーへ送信・再生
-- `SinOsc.ar()` はデフォルトで **440Hz**（A4）のサイン波を生成
-- `.ar` = **Audio Rate**（オーディオレート）で動作
+1. 文法の基本
+2. 音響を生成
+3. 楽器（SynthDef）の作成
+4. パターンで演奏
 
 ---
 
-## 2. ステレオ再生
-
-`SinOsc.ar()` だけでは左チャンネルのみに出力されます。
-
-```cpp
-{ SinOsc.ar().dup(2) }.play   // 信号を2チャンネルに複製
-{ SinOsc.ar() ! 2 }.play      // dup(2) の省略記法
-
-{ SinOsc.ar().dup(2) }.scope  // オシロスコープで波形確認
-```
-
-| メソッド | 意味 |
-|---------|------|
-| `.dup(2)` | 信号を2チャンネルに複製（ステレオ化） |
-| `! 2` | `.dup(2)` の省略記法 |
-| `.scope` | オシロスコープで波形を表示 |
+# 1. 文法の基本
 
 ---
 
-## 3. 音量の変更
-
-`SinOsc.ar(freq, phase, mul, add)` の第3引数 `mul` で音量を設定します。
+## Hello World — オブジェクトとメソッド
 
 ```cpp
-{ SinOsc.ar(440, 0.0, 0.3).dup(2) }.play  // 音量 0.3
+// オブジェクト.メソッド
+"Hello world".postln;
 
-// キーワード引数で書くと明瞭
-{ SinOsc.ar(freq: 440, mul: 0.3).dup(2) }.play
+// 別の書き方（関数形式）
+postln("Hello world");
+
+// メソッドの連結
+"Hello world".reverse.postln;
 ```
 
-- `mul` の適切な範囲は **0.0 〜 1.0**
-- 1.0 を超えるとクリッピング（音割れ）が発生する
+SuperColliderでは**すべてがオブジェクト**。
+`.メソッド名` で操作を連鎖できる。
 
 ---
 
-## 4. 周波数の変更
+## 変数 — var と環境変数
 
-第1引数 `freq` で音の高さを変えます。周波数を2倍にすると1オクターブ上になります。
-
-```cpp
-{ SinOsc.ar(220).dup(2) }.play   // A3 (220Hz)
-{ SinOsc.ar(440).dup(2) }.play   // A4 (440Hz) 標準ピッチ
-{ SinOsc.ar(880).dup(2) }.play   // A5 (880Hz) 1オクターブ上
-```
-
-MIDIノートナンバーから周波数に変換することもできます：
+<style scoped>pre { font-size: 0.75em; }</style>
 
 ```cpp
-69.midicps.postln                    // -> 440.0 (A4)
-{ SinOsc.ar(69.midicps).dup(2) }.play
-```
-
----
-
-## 5. 変数による指定
-
-値に名前をつけて管理することで、コードが読みやすくなります。
-
-```cpp
-// ローカル変数 (var)：括弧の中でのみ有効
+// ローカル変数: まとめて実行 (Ctrl+Enter)
 (
-var freq = 440, amp = 0.3;
-{ SinOsc.ar(freq, mul: amp).dup(2) }.play;
+var str;
+str = "Hello world";
+str.postln;
 )
 
-// 環境変数 (~)：どこからでもアクセス可能
-~freq = 330;
-~amp  = 0.3;
-{ SinOsc.ar(~freq, mul: ~amp).dup(2) }.play
+// 環境変数: 1行ずつ実行も可能
+~str = "Hello world";
+~str.postln;
+
+// 1文字の変数は環境変数として使える
+a = "Hello world";
+a.postln;
 ```
+
+`~変数名` はどこからでもアクセスできる**環境変数**。
 
 ---
 
-## 6. コントロール信号でパラメータを変化させる
-
-**時間とともに変化するUGen（`.kr`）** でパラメータを動かす。
+## 関数の定義と実行
 
 ```cpp
-// ビブラート：5Hzのサイン波で周波数を 400〜480Hz で揺らす
+// 関数を定義して環境変数に代入
 (
-{ var freq;
-  freq = SinOsc.kr(5).range(400, 480);  // .range で範囲を指定
-  SinOsc.ar(freq, mul: 0.3).dup(2);
-}.play )
+  ~func = {
+    var msg1, msg2;
+    msg1 = "Hello";
+    msg2 = "world";
+    (msg1 + msg2).postln;
+  }
+)
+
+// 関数を実行
+~func.value;
 ```
 
-| UGen | 説明 |
-|------|------|
-| `SinOsc.kr(rate)` | 正弦波のLFO |
-| `LFNoise1.kr(rate)` | ランダムな直線補間信号 |
-| `XLine.kr(start, end, dur)` | 指数的に変化する信号 |
+`{ ... }` が**関数（Function）**。`.value` で実行する。
 
 ---
 
-## 6b. コントロール信号の応用
+## 関数への引数
 
 ```cpp
-// トレモロ：4Hzのサイン波で音量を 0〜0.5 で揺らす
+// 引数を持つ関数
 (
-{ var amp;
-  amp = SinOsc.kr(4).range(0, 0.5);
-  SinOsc.ar(440, mul: amp).dup(2);
-}.play )
+  ~func = {
+    arg msg1, msg2;
+    var bindMsg;
+    bindMsg = msg1 + msg2;
+    bindMsg.postln;
+  }
+)
 
-// ランダムに周波数が変化
-(
-{ var freq;
-  freq = LFNoise1.kr(2).range(200, 800);
-  SinOsc.ar(freq, mul: 0.3).dup(2);
-}.play )
+// 引数を指定して実行
+~func.value("Hello", "World");
+~func.value("こんにちは", "世界");
 ```
+
+`arg` キーワードで**引数**を定義する。
 
 ---
 
-## 7. 音を混ぜる
+# 2. 音響を生成
 
-複数のUGenを **`+` で加算** するだけでミックスできます。
+---
+
+## サーバーの起動と停止
 
 ```cpp
-(
-{ var sig1, sig2, sig3;
-  sig1 = SinOsc.ar(220, mul: 0.2).dup(2);  // 基音
-  sig2 = SinOsc.ar(440, mul: 0.2).dup(2);  // 第2倍音
-  sig3 = SinOsc.ar(660, mul: 0.2).dup(2);  // 第3倍音
-  (sig1 + sig2 + sig3) / 3.0;              // 加算でミックス
-}.play )
+// SuperColliderオーディオサーバーを起動
+s.boot;
+
+// すべてのサーバーを停止
+Server.killAll;
 ```
+
+`s` はデフォルトの**オーディオサーバー（scsynth）**。
+音を出す前に必ず起動が必要。
 
 ---
 
-## 8. エンベロープとは
-
-**エンベロープ**（Envelope）とは音量の時間的な変化の形です。
-
-```
-音量
- 1 |   *
-   |  * *
- S |     *****
-   |          *
- 0 |___A__D__S__R___→ 時間
-```
-| 要素 | 意味 |
-|------|------|
-| **A** ttack | 発音〜最大音量までの時間 |
-| **D** ecay | 最大音量〜サステインまでの時間 |
-| **S** ustain | キーを押している間の音量レベル |
-| **R** elease | キーを離してから消えるまでの時間 |
-
----
-
-## 8b. Env.perc — パーカッシブなエンベロープ
-
-打楽器のような「アタック → フェードアウト」の形。
+## 最初の音 — SinOsc
 
 ```cpp
-(
-{ var sig, env;
-  // Env.perc(attackTime, releaseTime)
-  env = EnvGen.kr(Env.perc(0.01, 1.5), doneAction: Done.freeSelf);
-  sig = SinOsc.ar(440);
-  (sig * env).dup(2);  // 音源にエンベロープを掛ける
-}.play )
+// サイン波を再生
+{SinOsc.ar()}.play;
+
+// ステレオで再生
+{SinOsc.ar().dup(2)}.play;
 ```
 
-- `EnvGen.kr` でエンベロープ信号を生成
-- `doneAction: Done.freeSelf` でエンベロープ終了後に自動解放
+- `SinOsc.ar()` — サイン波を生成するUGen
+- `.dup(2)` — 同じ信号を2チャンネルに複製（ステレオ）
+- `Cmd+.` で音を止める
 
 ---
 
-## 8c. Env.adsr — ADSRエンベロープ
-
-`gate` 引数でキーオン/オフを制御します。
+## 周波数と音量の指定
 
 ```cpp
-(
-f = { arg gate = 1;
-  var sig, env;
-  env = Env.adsr(0.1, 0.3, 0.5, 1.5);  // A, D, S, R
-  env = EnvGen.kr(env, gate, doneAction: Done.freeSelf);
-  sig = SinOsc.ar(440);
-  (sig * env * 0.5).dup(2);
-}; )
+// 周波数を指定 SinOsc.ar(freq, phase, mul, add)
+{SinOsc.ar(110).dup(2)}.play;
 
-x = f.play;       // 再生（gate=1でアタック開始）
-x.set(\gate, 0);  // リリース開始
+// 音量(mul)を指定
+{SinOsc.ar(110, 0, 0.5).dup(2)}.play;
+
+// キーワード引数で指定
+{SinOsc.ar(freq: 110, mul: 0.5).dup(2)}.play;
 ```
+
+引数はキーワード形式（`名前: 値`）でも指定できる。
 
 ---
 
-## 9. SynthDef — 楽器を定義する
-
-**SynthDef** はサーバーに「楽器の設計図」を登録する仕組みです。
-
-```cpp
-// 定義
-(
-SynthDef("SinNote", {
-  arg out = 0, freq = 440, amp = 0.3, gate = 1;
-  var sig, env;
-  env = EnvGen.kr(Env.adsr(0.01, 0.2, 0.7, 1.0), gate, doneAction: 2);
-  sig = SinOsc.ar(freq) * env * amp;
-  Out.ar(out, sig.dup(2));
-}).add; )
-```
-
----
-
-## 9. SynthDef — 楽器を定義する
-
-```cpp
-// 演奏
-a = Synth("SinNote", [\freq: 261.63]);  // C4
-b = Synth("SinNote", [\freq: 329.63]);  // E4
-c = Synth("SinNote", [\freq: 392.00]);  // G4
-a.set(\gate, 0); b.set(\gate, 0); c.set(\gate, 0);
-```
----
-
-## 10. 加算合成（Additive Synthesis）
-
-多数のサイン波を重ねて複雑な音色を作る手法。
-**倍音列：** 基音 f, 2f, 3f, 4f, 5f ... 各倍音の振幅バランスが音色を決定
+## 変数を使って整理する
 
 ```cpp
 (
-SynthDef("AddSynth", { arg out=0, freq=110, amp=0.3, gate=1;
-  var sig = 0, env;
-  sig = sig + SinOsc.ar(freq * 1, mul: 1.0/1);  // 基音
-  sig = sig + SinOsc.ar(freq * 2, mul: 1.0/2);  // 第2倍音
-  sig = sig + SinOsc.ar(freq * 3, mul: 1.0/3);  // 第3倍音
-  sig = sig + SinOsc.ar(freq * 4, mul: 1.0/4);  // 第4倍音
-  env = EnvGen.kr(Env.asr(0.01, 1.0, 1.5), gate, doneAction: 2);
-  Out.ar(out, sig.dup(2) * env * amp * 0.2);
-}).add; )
+~func = {
+    var freq = 110, amp = 0.5;
+    SinOsc.ar(freq, 0, amp).dup(2);
+  }
+)
+~func.play;
+```
+
+変数に名前をつけることで**コードが読みやすく**なる。
+
+---
+
+# 3. 楽器（SynthDef）の作成
+
+---
+
+## SynthDefの基本
+
+```cpp
+// .playより厳密な方法 — SynthDefを定義
+(
+  SynthDef("mySynth", {
+    arg out = 0, freq = 110, amp = 0.5;
+    var sig;
+    sig = SinOsc.ar(freq) * amp;
+    Out.ar(out, sig.dup(2));
+  }).add;
+)
+```
+
+- `SynthDef("名前", { ... })` — 楽器の設計図を定義
+- `arg` — 外部から変更できるパラメータ
+- `Out.ar(out, sig)` — オーディオ出力
+
+---
+
+## SynthDefを演奏する
+
+```cpp
+// Synthを生成（音が鳴り始める）
+a = Synth("mySynth");
+
+// パラメータをリアルタイムで変更
+a.set(\freq, 330, \amp, 0.2);
+a.set(\freq, 440, \amp, 0.2);
+
+// 音を停止して解放
+a.free;
+
+// 引数を指定して生成
+b = Synth("mySynth", [freq: 880, amp: 0.4]);
+b.free;
 ```
 
 ---
 
-## 10b. Klang — 効率的な加算合成
-
-**Klang** は多数のサイン波を一度に生成できる専用UGenです。
+## SinOsc → Saw波に変更
 
 ```cpp
 (
-SynthDef("KlangSynth", { arg out=0, amp=0.5, gate=1;
-  var num = 30, freqs, amps, phases, sig, env;
-  freqs  = Array.exprand(num, 80, 12000).sort;
-  amps   = Array.exprand(num, 0.002, 0.05).sort.reverse;
-  phases = Array.rand(num, 0, 2pi);
-  sig = Klang.ar(`[freqs, amps, phases]);  // バッククォートに注意
-  env = EnvGen.kr(Env.asr(1.0, 1.0, 3.0), gate, doneAction: 2);
-  Out.ar(out, sig.dup(2) * env * amp);
-}).add; )
-x = Synth("KlangSynth"); x.set(\gate, 0);
+  SynthDef("mySynth", {
+    arg out = 0, freq = 110, amp = 0.5;
+    var sig;
+    sig = Saw.ar(freq) * amp;  // SinOsc → Saw
+    Out.ar(out, sig.dup(2));
+  }).add;
+)
+a = Synth("mySynth", [freq: 110, amp: 0.5]);
+a.free;
 ```
+
+`Saw.ar()` — のこぎり波UGen。倍音が豊富でより存在感のある音。
 
 ---
 
-## 10c. DynKlang — 動的に変化する加算合成
-
-**DynKlang** は各倍音をリアルタイムで変調できる動的版です。
+## デチューンで厚みを出す
 
 ```cpp
 (
-SynthDef("DynKlangSynth", { arg out=0, amp=0.4, gate=1;
-  var num=30, freqs, amps, phases, sig, env;
-  freqs  = Array.exprand(num, 80, 8000).sort;
-  amps   = Array.exprand(num, 0.005, 0.1).sort.reverse;
-  phases = Array.rand(num, 0, 2pi);
-  sig = DynKlang.ar(`[
-    freqs * LFNoise1.kr(0.05 ! num).exprange(0.5, 2.0),  // 周波数変調
-    amps  * LFNoise1.kr(0.5  ! num).exprange(0.1, 1.0),  // 振幅変調
-    phases]);
-  env = EnvGen.kr(Env.asr(3.0, 1.0, 5.0), gate, doneAction: 2);
-  Out.ar(out, sig.dup(2) * env * amp);
-}).add; )
+  SynthDef("mySynth", {
+    arg out = 0, freq = 110, detune = 1.005, amp = 0.5;
+    var sig;
+    sig = Saw.ar([freq / detune, freq * detune], amp);
+    Out.ar(out, sig);
+  }).add;
+)
+a = Synth("mySynth", [freq: 110, detune: 1.005, amp: 0.5]);
+a.free;
 ```
+
+周波数をわずかにずらして2つ重ねることで**厚みのあるサウンド**に。
 
 ---
 
-## 11. 変調合成とは
+## Mix.arで複数の波を重ねる
 
-**モジュレーター**の出力で**キャリア**のパラメータを変化させる手法。
-
-```
-         モジュレーター
-              ↓
-キャリア → [パラメータ変調] → 出力
-```
-
-| 種類 | 変調するパラメータ | 特徴 |
-|------|-----------------|------|
-| **AM**（振幅変調） | 振幅 | キャリア ± モジュレーターの側波帯 |
-| **RM**（リング変調） | 振幅（双極性） | キャリア成分が消え側波帯のみ |
-| **FM**（周波数変調） | 周波数 | 豊かな倍音、少ないUGenで複雑な音色 |
-
----
-
-## 11b. AM変調（振幅変調）
-
-モジュレーターを **0〜1** にスケールしてキャリアの振幅に掛ける。
+<style scoped>pre { font-size: 0.7em; }</style>
 
 ```cpp
 (
-SynthDef("AmSynth", { arg out=0, gate=1, freq=440, modFreq=100, amp=0.5;
-  var sig, env, mod;
-  mod = SinOsc.ar(modFreq).range(0, 1);  // 0〜1 にマッピング（AM）
-  sig = SinOsc.ar(freq, mul: mod);       // キャリアの振幅を変調
-  env = EnvGen.kr(Env.perc(0.01, 1.5), gate, doneAction: 2);
-  Out.ar(out, sig.dup(2) * env * amp);
-}).add; )
-
-Synth("AmSynth", [\freq: 440, \modFreq: 20]);   // うなり音
-Synth("AmSynth", [\freq: 440, \modFreq: 440]);  // 金属的
+  SynthDef("mySynth", {
+    arg out = 0, freq = 110, detune = 1.005, amp = 0.5;
+    var sig;
+    sig = Mix.ar([
+      Saw.ar([freq / detune, freq * detune]),
+      Saw.ar([freq / detune, freq * detune] / detune),
+      Saw.ar([freq / detune, freq * detune] / detune / 2.0)
+    ]) / 3.0 * amp;
+    Out.ar(out, sig);
+  }).add;
+)
+a = Synth("mySynth", [freq: 110, detune: 1.005, amp: 0.5]);
+a.free;
 ```
+
+`Mix.ar([...])` — 複数の信号を**ミックス**する。`/ 3.0` で音量を調整。
 
 ---
 
-## 11c. RM変調（リング変調）
+## エンベロープを追加
 
-モジュレーターを **-1〜1** のままキャリアの振幅に掛ける。
-キャリア成分が消え、**上下の側波帯のみ**が残ります。
+<style scoped>pre { font-size: 0.7em; }</style>
 
 ```cpp
 (
-SynthDef("RmSynth", { arg out=0, gate=1, freq=440, modFreq=100, amp=0.5;
-  var sig, env, mod;
-  mod = SinOsc.ar(modFreq);         // -1〜1 そのまま使う（RM）
-  sig = SinOsc.ar(freq, mul: mod);
-  env = EnvGen.kr(Env.perc(0.01, 1.5), gate, doneAction: 2);
-  Out.ar(out, sig.dup(2) * env * amp);
-}).add; )
-
-// AMとRMの違いを聴き比べる（キャリア成分の有無）
-Synth("AmSynth", [\freq: 440, \modFreq: 110]);
-Synth("RmSynth", [\freq: 440, \modFreq: 110]);
+  SynthDef("mySynth", {
+    arg out = 0, gate = 1, freq = 110, detune = 1.005, amp = 0.5;
+    var sig, env;
+    sig = Mix.ar([
+      Saw.ar([freq / detune, freq * detune]),
+      Saw.ar([freq / detune, freq * detune] / detune),
+      Saw.ar([freq / detune, freq * detune] / detune / 2.0)
+    ]) / 3.0;
+    env = EnvGen.kr(Env.adsr(), gate, doneAction: 2);
+    sig = sig * env * amp;
+    Out.ar(out, sig);
+  }).add;
+)
+a = Synth("mySynth", [\freq, 110]);
+a.set(\gate, 0);  // gate=0で音が止まる
 ```
+
+`Env.adsr()` — Attack, Decay, Sustain, Releaseエンベロープ。
 
 ---
 
-## 11d. FM変調（周波数変調）
+## フィルターを追加
 
-モジュレーターをキャリアの**周波数**に加算する。
-少ないUGenで豊かな倍音を持つ複雑な音色が作れます。
+<style scoped>pre { font-size: 0.6em; }</style>
 
 ```cpp
 (
-SynthDef("FmSynth", { arg out=0, carFreq=440, ratio=1.0, index=3, dur=1.0, amp=0.4;
-  var mod, car, modFreq;
-  modFreq = carFreq * ratio;                    // C:M比で倍音構成が決まる
-  mod = SinOsc.ar(modFreq, mul: index * modFreq); // 変調深度 = index × modFreq
-  car = SinOsc.ar(carFreq + mod);               // 周波数にモジュレーターを加算
-  Out.ar(out, (car * EnvGen.kr(Env.perc(0.01, dur), doneAction:2) * amp).dup(2));
-}).add; )
+  SynthDef("mySynth", {
+    arg out = 0, gate = 1, freq = 110, detune = 1.005,
+        cutoff = 2000, amp = 0.5;
+    var sig, env;
+    sig = Mix.ar([
+      Saw.ar([freq / detune, freq * detune]),
+      Saw.ar([freq / detune, freq * detune] / detune),
+      Saw.ar([freq / detune, freq * detune] / detune / 2.0)
+    ]) / 3.0;
+    env = EnvGen.kr(Env.adsr(), gate, doneAction: 2);
+    sig = sig * env * amp;
+    sig = MoogFF.ar(sig, cutoff, mul: 2.0);
+    Out.ar(out, sig);
+  }).add;
+)
+a = Synth("mySynth", [\freq, 110]);
+a.set(\gate, 0);
 ```
 
-- **C:M比 整数比** → 調和的な音色（音楽的）
-- **C:M比 非整数比** → 非調和音（ベル、金属的）
-- **index 大** → 倍音豊か（明るい音）
+`MoogFF` — Moogスタイルのローパスフィルター。
 
 ---
 
-## 11e. FM変調 — C:M比とインデックスの効果
+## フィルターの周波数を揺らす
 
-```cpp
-// C:M比による音色の変化
-Synth("FmSynth", [\carFreq: 220, \ratio: 1.0,   \index: 5, \dur: 2]);  // ユニゾン
-Synth("FmSynth", [\carFreq: 220, \ratio: 1.5,   \index: 5, \dur: 2]);  // 3:2（5度）
-Synth("FmSynth", [\carFreq: 220, \ratio: 1.414, \index: 5, \dur: 2]);  // √2（ベル）
-
-// インデックスによる音色の変化（ratio=1.0 固定）
-Synth("FmSynth", [\carFreq: 330, \ratio: 1.0, \index: 1,  \dur: 3]);  // 純音に近い
-Synth("FmSynth", [\carFreq: 330, \ratio: 1.0, \index: 5,  \dur: 3]);  // やや明るい
-Synth("FmSynth", [\carFreq: 330, \ratio: 1.0, \index: 20, \dur: 3]);  // 非常に明るい
-```
-
----
-
-## 12. 本格的なFMシンセ — インデックスのエンベロープ制御
-
-変調インデックス自体をエンベロープで変化させると、
-**発音直後は倍音豊か → 時間とともに柔らかく** なる自然な音色変化が得られます。
+<style scoped>pre { font-size: 0.6em; }</style>
 
 ```cpp
 (
-SynthDef("FmExpressive", { arg out=0, gate=1, carFreq=440, ratio=1.414, index=10, rel=3.0, amp=0.4;
-  var modFreq, idxEnv, mod, car, sig, env;
-  modFreq = carFreq * ratio;
-  // インデックスを発音後に素早く下げる（音色エンベロープ）
-  idxEnv  = EnvGen.kr(Env.perc(0.001, rel * 1.5), gate).range(0, index);
-  mod = SinOsc.ar(modFreq, mul: modFreq * idxEnv);
-  car = SinOsc.ar(carFreq + mod);
-  env = EnvGen.kr(Env.adsr(0.01, 0.3, 0.6, rel), gate, doneAction: 2);
-  sig = GVerb.ar((car * env * amp).dup(2), 30, 2.0) * 0.8;
+  SynthDef("mySynth", {
+    arg out = 0, gate = 1, freq = 110, detune = 1.005,
+        cutoff = 1200, cutfreq = 4.0, amp = 0.5;
+    var sig, cutsig, env;
+    sig = Mix.ar([
+      Saw.ar([freq / detune, freq * detune]),
+      Saw.ar([freq / detune, freq * detune] / detune),
+      Saw.ar([freq / detune, freq * detune] / detune / 2.0)
+    ]) / 3.0;
+    env = EnvGen.kr(Env.adsr(), gate, doneAction: 2);
+    sig = sig * env * amp;
+    cutsig = LFNoise2.kr([cutfreq, cutfreq * 1.5]).range(cutoff * 0.25, cutoff * 1.5);
+    sig = MoogFF.ar(sig, cutsig, mul: 2.0);
+    Out.ar(out, sig);
+  }).add;
+)
+a = Synth("mySynth", [\freq, 110]);  a.set(\gate, 0);
+```
+
+`LFNoise2.kr` — ランダムな低周波ノイズでフィルター周波数を変化させる。
+
+---
+
+## リバーブを追加して完成！
+
+<style scoped>pre { font-size: 0.5em; }</style>
+
+```cpp
+(
+SynthDef("mySynth", {
+  arg out = 0, gate = 1, freq = 440, detune = 1.005,
+      cutoff = 1200, cutfreq = 4.0, amp = 0.2;
+  var sig, cutsig, env;
+  sig = Mix.ar([
+    Saw.ar([freq / detune, freq * detune]),
+    Saw.ar([freq / detune, freq * detune] / detune),
+    Saw.ar([freq / detune, freq * detune] / detune / 2.0)
+  ]) / 3.0;
+  env = EnvGen.kr(Env.adsr(), gate, doneAction: 2);
+  sig = sig * env * amp;
+  cutsig = LFNoise2.kr([cutfreq, cutfreq * 1.5]).range(cutoff * 0.25, cutoff * 1.5);
+  sig = MoogFF.ar(sig, cutsig, mul: 2.0);
+  sig = GVerb.ar(sig, 100, 1.0);  // リバーブ追加
   Out.ar(out, sig);
-}).add; )
-x = Synth("FmExpressive", [\carFreq: 440, \rel: 4.0]); x.set(\gate, 0);
+}).add;
+)
+a = Synth("mySynth", [\freq, 110]);  a.set(\gate, 0);
 ```
+
+`GVerb` — ホール系リバーブ。空間の広がりが加わって完成！
 
 ---
 
-## 12b. SuperSaw シンセサイザー
-
-複数のノコギリ波を**デチューン**（音程をわずかにずらす）して重ねることで、
-EDM/トランスで定番の分厚いサウンドが得られます。
-
-```cpp
-(
-SynthDef("SuperSaw", { arg out=0, gate=1, freq=440, detune=0.15, cutoff=3000, rel=1.0, amp=0.3;
-  var sig, env, voices = 5;
-  sig = Mix.fill(voices, { |i|
-    var d = detune * (i - ((voices-1)/2)) / (voices-1);
-    Saw.ar(freq * (1 + d));              // 各ボイスを均等にデチューン
-  });
-  sig = RLPF.ar(sig, cutoff, 0.3);      // ローパスフィルターで整える
-  env = EnvGen.kr(Env.adsr(0.01, 0.2, 0.7, rel), gate, doneAction: 2);
-  sig = GVerb.ar(sig.dup(2), 30, 1.5) * env * amp * (1/voices);
-  Out.ar(out, sig);
-}).add; )
-```
+# 4. パターンで演奏する
 
 ---
 
-## 12c. SuperSaw — コードで演奏
+## Pbindで自動演奏
+
+<style scoped>pre { font-size: 0.7em; }</style>
 
 ```cpp
-// Cメジャーコード（C4, E4, G4）
 (
-var freqs = [261.63, 329.63, 392.00];
-~pad = freqs.collect { |f|
-  Synth("SuperSaw", [\freq: f, \detune: 0.2, \cutoff: 2500, \amp: 0.25]);
-}; )
-
-~pad.do { |s| s.set(\gate, 0) };  // 停止
-
-// パッドとして（長いアタック・リリース）
-(
-~pad = [220, 277.18, 329.63].collect { |f|
-  Synth("SuperSaw", [\freq: f, \detune: 0.25, \attk: 2.0, \rel: 4.0,
-                     \cutoff: 1500, \amp: 0.2]);
-}; )
-~pad.do { |s| s.set(\gate, 0) };
+TempoClock.default.tempo = 80/60;
+p = Pbind(
+    \instrument, "mySynth",
+    \scale,      Scale.indian(\pythagorean),
+    \degree,     Prand([0, 1, 2, 3, 4], inf),
+    \octave,     Prand([2, 3, 3, 4, 5], inf),
+    \detune,     Pwhite(1.0, 1.005),
+    \cutoff,     Pwhite(100, 4000),
+    \amp,        Pwhite(0.15, 0.5),
+    \dur,        Prand([1/4, 1/2, 1/2, 1], inf),
+    \legato,     Pwhite(0.5, 1.0)
+).play;
+)
+p.stop;
 ```
+
+`Pbind` — SynthDefをパターンで自動演奏。`Prand` / `Pwhite` でランダム変化。
+
+---
+
+## 複数のパターンを同時に演奏
+
+<style scoped>pre { font-size: 0.4em; }</style>
+
+```cpp
+(
+TempoClock.default.tempo = 80/60;
+~p1 = Pbind(
+    \instrument, "mySynth",
+    \scale,   Scale.indian(\pythagorean),
+    \degree,  Prand([0, 1, 2, 3, 4], inf),
+    \octave,  Prand([2, 3, 3, 4, 5], inf),
+    \detune,  Pwhite(1.0, 1.005),
+    \cutoff,  Pwhite(100, 4000),
+    \amp,     Pwhite(0.15, 0.5),
+    \dur,     Prand([1/4, 1/2, 1/2, 1], inf),
+    \legato,  Pwhite(0.5, 1.0)
+).play;
+~p2 = Pbind(
+    \instrument, "mySynth",
+    \scale,   Scale.indian(\pythagorean),
+    \degree,  Prand([0, 1, 2, 3, 4], inf),
+    \octave,  Prand([4, 5, 5, 6], inf),
+    \detune,  Pwhite(1.0, 1.005),
+    \cutoff,  Pwhite(100, 4000),
+    \amp,     Pwhite(0.15, 0.5),
+    \dur,     Prand([1/4, 1/4, 1/2], inf),
+    \legato,  Pwhite(0.5, 1.0)
+).play;
+)
+~p1.stop; ~p2.stop;
+```
+
+複数の `Pbind` を環境変数に代入し、個別に停止できる。
 
 ---
 
 ## まとめ
 
-<div style="font-size: 0.5em">
+<div style="font-size: 0.82em">
 
-| テーマ | キーワード |
-|--- |--- |
-| 最初の一音 | `SinOsc.ar()`, `.play`, `.dup(2)` |
-| 音量・周波数 | `mul`, `freq`, `.midicps` |
-| 変数 | `var`, `~name` |
-| コントロール信号 | `.kr`, `SinOsc.kr`, `LFNoise1`, `.range` |
-| 音を混ぜる | `+`, `Mix` |
-| エンベロープ | `Env.perc`, `Env.adsr`, `EnvGen.kr` |
-| 楽器定義 | `SynthDef`, `Synth`, `Out.ar` |
-| 加算合成 | 倍音列, `Klang`, `DynKlang` |
-| 変調合成 | AM / RM / FM, C:M比, インデックス |
-| 応用 | FMシンセ, SuperSaw |
+| セクション | 内容 |
+|---|---|
+| 文法の基本 | オブジェクト・メソッド・変数・関数 |
+| 音響を生成 | SinOsc / Saw / .play / .dup(2) |
+| SynthDef | 引数・Mix・EnvGen・MoogFF・GVerb |
+| パターン | Pbind / Prand / Pwhite / Scale |
 
 </div>
+
+**SynthDefの構成要素:**
+- `Saw` — 波形 → `Mix` — 重ねる → `EnvGen` — 音量形状
+- `MoogFF` — フィルター → `GVerb` — 空間
+
+**次のセッション:** SuperCollider + VSCodeでVibe Coding！
