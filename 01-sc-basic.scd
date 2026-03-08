@@ -1,12 +1,15 @@
 // SuperColliderはじめの一方
 
+Server.killAll; // サーバーをリセット
+s.boot; // サーバーを起動
+
 // まず完成イメージから
 // ステップバイステップでこれを作っていきます
 (
 SynthDef("mySynth",
   {
     arg out = 0, gate = 1, freq = 440, detune = 1.005, 
-        cutoff = 1200, cutfreq = 10.0, amp = 0.2;
+        cutoff = 1200, cutfreq = 1.0, amp = 0.8;
     var sig, cutsig, env;
     sig = Mix.ar([
       Saw.ar([freq / detune, freq * detune]) 
@@ -23,7 +26,7 @@ SynthDef("mySynth",
 )
 
 a = Synth("mySynth", [\freq, 110]);
-a.set(\gate, 0); 
+a.set(\gate, 0);
 
 ---
 /*
@@ -104,6 +107,14 @@ Server.killAll;
 ---
 
 // 最初の音: サイン波
+(
+  ~func = {
+    SinOsc.ar();
+  }
+)
+~func.play;
+
+// 1行にまとめる
 {SinOsc.ar()}.play;
 
 ---
@@ -147,7 +158,7 @@ Server.killAll;
 // 音量と周波数を引数で指定できるようにする
 (
   SynthDef("mySynth", {
-    arg out = 0, freq = 110, amp = 0.5;
+    arg out = 0, freq = 440, amp = 0.8;
     var sig;
     sig = SinOsc.ar(freq) * amp;
     Out.ar(out, sig.dup(2));
@@ -158,8 +169,8 @@ Server.killAll;
 
 // SynthDefを演奏
 a = Synth("mySynth");
-a.set(\freq, 330, \amp, 0.2);
-a.set(\freq, 440, \amp, 0.2);
+a.set(\freq, 330, \amp, 0.5);
+a.set(\freq, 440, \amp, 0.5);
 a.free;
 b = Synth("mySynth", [freq: 880, amp: 0.4]);
 b.free;
@@ -169,13 +180,13 @@ b.free;
 // Sin波からSaw波に変更
 (
   SynthDef("mySynth", {
-    arg out = 0, freq = 110, amp = 0.5;
+    arg out = 0, freq = 440, amp = 0.8;
     var sig;
     sig = Saw.ar(freq) * amp;
     Out.ar(out, sig.dup(2));
   }).add;
 )
-a = Synth("mySynth", [freq: 110, amp: 0.5]);
+a = Synth("mySynth", [freq: 110]);
 a.free;
 
 ---
@@ -184,13 +195,13 @@ a.free;
 // 深みのあるサウンドに
 (
   SynthDef("mySynth", {
-    arg out = 0, freq = 110, detune = 1.005, amp = 0.5;
+    arg out = 0, freq = 110, detune = 1.005, amp = 0.8;
     var sig;
     sig = Saw.ar([freq / detune, freq * detune], amp);
     Out.ar(out, sig);
   }).add;
 )
-a = Synth("mySynth", [freq: 110, detune: 1.005, amp: 0.5]);1
+a = Synth("mySynth", [freq: 110, detune: 1.005]);
 a.free;
 
 ---
@@ -198,7 +209,7 @@ a.free;
 // さらに複数のSaw波を重ねてみる
 (
   SynthDef("mySynth", {
-    arg out = 0, freq = 110, detune = 1.005, amp = 0.5;
+    arg out = 0, freq = 110, detune = 1.005, amp = 0.8;
     var sig;
     sig = Mix.ar([
       Saw.ar([freq / detune, freq * detune]) 
@@ -208,7 +219,7 @@ a.free;
     Out.ar(out, sig);
   }).add;
 ) 
-a = Synth("mySynth", [freq: 110, detune: 1.005, amp: 0.5]);
+a = Synth("mySynth", [freq: 110, detune: 1.005]);
 a.free;
 
 ---
@@ -216,7 +227,7 @@ a.free;
 // エンベロープを追加してみる
 (
   SynthDef("mySynth", {
-    arg out = 0, gate = 1, freq = 110, detune = 1.005, amp = 0.5;
+    arg out = 0, gate = 1, freq = 110, detune = 1.005, amp = 0.8;
     var sig, env;
     sig = Mix.ar([
       Saw.ar([freq / detune, freq * detune]) 
@@ -238,7 +249,7 @@ a.set(\gate, 0); // 音を止める
 (
   SynthDef("mySynth", {
     arg out = 0, gate = 1, freq = 110, detune = 1.005, 
-        cutoff = 2000, amp = 0.5;
+        cutoff = 2000, amp = 0.8;
     var sig, cutsig, env;
     sig = Mix.ar([
       Saw.ar([freq / detune, freq * detune]) 
@@ -260,7 +271,7 @@ a.set(\gate, 0);
 (
   SynthDef("mySynth", {
     arg out = 0, gate = 1, freq = 110, detune = 1.005, 
-        cutoff = 1200, cutfreq = 4.0, amp = 0.5;
+        cutoff = 1200, cutfreq = 1.0, amp = 0.8;
     var sig, cutsig, env;
     sig = Mix.ar([
       Saw.ar([freq / detune, freq * detune]) 
@@ -285,7 +296,7 @@ a.set(\gate, 0);
 SynthDef("mySynth",
   {
     arg out = 0, gate = 1, freq = 440, detune = 1.005, 
-        cutoff = 1200, cutfreq = 4.0, amp = 0.2;
+        cutoff = 1200, cutfreq = 1.0, amp = 0.8;
     var sig, cutsig, env;
     sig = Mix.ar([
       Saw.ar([freq / detune, freq * detune]) 
@@ -300,9 +311,8 @@ SynthDef("mySynth",
     Out.ar(out, sig);
 }).add;
 )
-
 a = Synth("mySynth", [\freq, 110]);
-a.set(\gate, 0); 
+a.set(\gate, 0);
 
 // これで完成です！
 

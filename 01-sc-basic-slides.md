@@ -41,7 +41,7 @@ th, td {
 ```cpp
 SynthDef("mySynth", {
   arg out = 0, gate = 1, freq = 440, detune = 1.005,
-      cutoff = 1200, cutfreq = 10.0, amp = 0.2;
+      cutoff = 1200, cutfreq = 1.0, amp = 0.2;
   var sig, cutsig, env;
   sig = Mix.ar([
     Saw.ar([freq / detune, freq * detune]),
@@ -182,7 +182,12 @@ Server.killAll;
 ## 最初の音 — SinOsc
 
 ```cpp
-// サイン波を再生
+// サイン波を再生する関数を定義
+~sine = {SinOsc.ar()};
+// 関数を実行して音を鳴らす
+~sine.play;
+
+// 1行で書くこともできる
 {SinOsc.ar()}.play;
 
 // ステレオで再生
@@ -202,13 +207,13 @@ Server.killAll;
 {SinOsc.ar(110).dup(2)}.play;
 
 // 音量(mul)を指定
-{SinOsc.ar(110, 0, 0.5).dup(2)}.play;
+{SinOsc.ar(110, 0, 0.8).dup(2)}.play;
 
 // キーワード引数で指定
-{SinOsc.ar(freq: 110, mul: 0.5).dup(2)}.play;
+{SinOsc.ar(freq:110, mul:0.8).dup(2)}.play;
 ```
 
-引数はキーワード形式（`名前: 値`）でも指定できる。
+引数はキーワード形式（`名前:値`）でも指定できる。
 
 ---
 
@@ -217,7 +222,7 @@ Server.killAll;
 ```cpp
 (
 ~func = {
-    var freq = 110, amp = 0.5;
+    var freq = 440, amp = 0.8;
     SinOsc.ar(freq, 0, amp).dup(2);
   }
 )
@@ -238,7 +243,7 @@ Server.killAll;
 // .playより厳密な方法 — SynthDefを定義
 (
   SynthDef("mySynth", {
-    arg out = 0, freq = 110, amp = 0.5;
+    arg out = 0, freq = 440, amp = 0.8;
     var sig;
     sig = SinOsc.ar(freq) * amp;
     Out.ar(out, sig.dup(2));
@@ -259,14 +264,14 @@ Server.killAll;
 a = Synth("mySynth");
 
 // パラメータをリアルタイムで変更
-a.set(\freq, 330, \amp, 0.2);
-a.set(\freq, 440, \amp, 0.2);
+a.set(freq: 330, amp: 0.5);
+a.set(freq: 110, amp: 0.5);
 
 // 音を停止して解放
 a.free;
 
 // 引数を指定して生成
-b = Synth("mySynth", [freq: 880, amp: 0.4]);
+b = Synth("mySynth", [freq: 880, amp: 0.8]);
 b.free;
 ```
 
@@ -277,13 +282,13 @@ b.free;
 ```cpp
 (
   SynthDef("mySynth", {
-    arg out = 0, freq = 110, amp = 0.5;
+    arg out = 0, freq = 440, amp = 0.8;
     var sig;
     sig = Saw.ar(freq) * amp;  // SinOsc → Saw
     Out.ar(out, sig.dup(2));
   }).add;
 )
-a = Synth("mySynth", [freq: 110, amp: 0.5]);
+a = Synth("mySynth", [freq: 110]);
 a.free;
 ```
 
@@ -296,13 +301,13 @@ a.free;
 ```cpp
 (
   SynthDef("mySynth", {
-    arg out = 0, freq = 110, detune = 1.005, amp = 0.5;
+    arg out = 0, freq = 440, detune = 1.005, amp = 0.8;
     var sig;
     sig = Saw.ar([freq / detune, freq * detune], amp);
     Out.ar(out, sig);
   }).add;
 )
-a = Synth("mySynth", [freq: 110, detune: 1.005, amp: 0.5]);
+a = Synth("mySynth", [freq: 110, detune: 1.005, amp: 0.8]);
 a.free;
 ```
 
@@ -317,7 +322,7 @@ a.free;
 ```cpp
 (
   SynthDef("mySynth", {
-    arg out = 0, freq = 110, detune = 1.005, amp = 0.5;
+    arg out = 0, freq = 440, detune = 1.005, amp = 0.8;
     var sig;
     sig = Mix.ar([
       Saw.ar([freq / detune, freq * detune]),
@@ -327,7 +332,7 @@ a.free;
     Out.ar(out, sig);
   }).add;
 )
-a = Synth("mySynth", [freq: 110, detune: 1.005, amp: 0.5]);
+a = Synth("mySynth", [freq: 110, detune: 1.005, amp: 0.8]);
 a.free;
 ```
 
@@ -342,7 +347,7 @@ a.free;
 ```cpp
 (
   SynthDef("mySynth", {
-    arg out = 0, gate = 1, freq = 110, detune = 1.005, amp = 0.5;
+    arg out = 0, gate = 1, freq = 440, detune = 1.005, amp = 0.8;
     var sig, env;
     sig = Mix.ar([
       Saw.ar([freq / detune, freq * detune]),
@@ -369,8 +374,8 @@ a.set(\gate, 0);  // gate=0で音が止まる
 ```cpp
 (
   SynthDef("mySynth", {
-    arg out = 0, gate = 1, freq = 110, detune = 1.005,
-        cutoff = 2000, amp = 0.5;
+    arg out = 0, gate = 1, freq = 440, detune = 1.005,
+        cutoff = 2000, amp = 0.8;
     var sig, env;
     sig = Mix.ar([
       Saw.ar([freq / detune, freq * detune]),
@@ -398,8 +403,8 @@ a.set(\gate, 0);
 ```cpp
 (
   SynthDef("mySynth", {
-    arg out = 0, gate = 1, freq = 110, detune = 1.005,
-        cutoff = 1200, cutfreq = 4.0, amp = 0.5;
+    arg out = 0, gate = 1, freq = 440, detune = 1.005,
+        cutoff = 1200, cutfreq = 1.0, amp = 0.8;
     var sig, cutsig, env;
     sig = Mix.ar([
       Saw.ar([freq / detune, freq * detune]),
@@ -428,7 +433,7 @@ a = Synth("mySynth", [\freq, 110]);  a.set(\gate, 0);
 (
 SynthDef("mySynth", {
   arg out = 0, gate = 1, freq = 440, detune = 1.005,
-      cutoff = 1200, cutfreq = 4.0, amp = 0.2;
+      cutoff = 1200, cutfreq = 1.0, amp = 0.8;
   var sig, cutsig, env;
   sig = Mix.ar([
     Saw.ar([freq / detune, freq * detune]),
