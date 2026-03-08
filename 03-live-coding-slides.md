@@ -193,15 +193,15 @@ $: s("supersaw(9, 16)")
 ```cpp
 (
 SynthDef(\mysine, {
-  arg out=0, freq=440, amp=0.5;
-  var sig = SinOsc.ar(freq).dup(2) * amp;
+  arg out=0, gate = 1, sustain = 1, freq=440, amp=0.5;
+  var env = EnvGen.ar(Env.adsr(), gate, timeScale:sustain, doneAction:2);
+  var sig = SinOsc.ar(freq).dup(2) * env * amp;
   Out.ar(out, sig);
 }).add;
 )
 
-Synth(\mysine);
-
-Synth(\mysine);
+a = Synth(\mysine, [freq: 440]);
+a.set(\gate, 0);
 ```
 
 ---
@@ -217,8 +217,8 @@ SuperDirt.start;
 SynthDef(\mysine, {
   arg out, freq, sustain = 1.0, pan;
   var env = EnvGen.ar(Env.adsr(), timeScale:sustain, doneAction:2);
-	var sig = SinOsc.ar(freq);
-	Out.ar(out, DirtPan.ar(sig, ~dirt.numChannels, pan, env));
+  var sig = SinOsc.ar(freq);
+  Out.ar(out, DirtPan.ar(sig, ~dirt.numChannels, pan, env));
 }).add
 )
 ```
@@ -248,8 +248,8 @@ $: s("mysine(9, 16)")
 SynthDef(\mysaw, {
   arg out, freq, sustain = 1.0, pan;
   var env = EnvGen.ar(Env.adsr(), timeScale:sustain, doneAction:2);
-	var sig = Saw.ar(freq);
-	Out.ar(out, DirtPan.ar(sig, ~dirt.numChannels, pan, env));
+  var sig = Saw.ar(freq);
+  Out.ar(out, DirtPan.ar(sig, ~dirt.numChannels, pan, env));
 }).add
 );
 ```
