@@ -11,6 +11,7 @@
 
 ### ワークショップのトピック
 
+0. **準備編** - ワークショップのためのインストールとセットアップ
 1. **SuperColliderの基本** - Sin波からはじめるサウンドプログラミング
 2. **AIコード生成を活用したvibe coding** - Claude / GitHub Copilot などとの連携
 3. **Strudel + SuperCollider** - ライブコーディングの実践
