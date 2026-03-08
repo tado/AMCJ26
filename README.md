@@ -11,7 +11,7 @@
 
 ### ワークショップのトピック
 
-0. **準備編** - ワークショップのためのインストールとセットアップ ([markdown](./00-outline.md), [pdf](./00-outline.pdf))
-1. **SuperColliderの基本** - Sin波からはじめるサウンドプログラミング ([markdown](./01-sc-basic-slides.md), [pdf](./01-sc-basic-slides.pdf), [scd](./01-sc-basic.scd))
-2. **AIコード生成を活用したvibe coding** - Claude / GitHub Copilot などとの連携 ([markdown](./02-vibe-coding-slides.md), [pdf](./02-vibe-coding-slides.pdf))
-3. **Strudel + SuperCollider** - ライブコーディングの実践 ([markdown](./03-live-coding-slides.md), [pdf](./03-live-coding-slides.pdf))
+0. **準備編** - ワークショップのためのインストールとセットアップ ([markdown](https://github.com/tado/AMCJ26/blob/main/00-outline.md), [pdf](https://github.com/tado/AMCJ26/blob/main/00-outline.pdf))
+1. **SuperColliderの基本** - Sin波からはじめるサウンドプログラミング ([markdown](https://github.com/tado/AMCJ26/blob/main/01-sc-basic-slides.md), [pdf](https://github.com/tado/AMCJ26/blob/main/01-sc-basic-slides.pdf), [scd](https://github.com/tado/AMCJ26/blob/main/01-sc-basic.scd))
+2. **AIコード生成を活用したvibe coding** - Claude / GitHub Copilot などとの連携 ([markdown](https://github.com/tado/AMCJ26/blob/main/02-vibe-coding-slides.md), [pdf](https://github.com/tado/AMCJ26/blob/main/02-vibe-coding-slides.pdf))
+3. **Strudel + SuperCollider** - ライブコーディングの実践 ([markdown](https://github.com/tado/AMCJ26/blob/main/03-live-coding-slides.md), [pdf](https://github.com/tado/AMCJ26/blob/main/03-live-coding-slides.pdf))
