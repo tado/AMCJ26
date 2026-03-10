@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>SuperSonic Simple Demo</title>
+</head>
+
+<body>
+  <h1>SuperSimple SuperSonic</h1>
+  <button id="boot-btn">boot</button>
+  <button id="trig-btn">trigger</button>
+
+  <script type="module">
+    import { SuperSonic } from "./supersonic/supersonic.js";
+
+    const supersonic = new SuperSonic({
+      baseURL: "./supersonic/",
+      synthdefBaseURL: "./supersonic/synthdefs/",
+    });
+
+    const bootBtn = document.getElementById("boot-btn");
+    const trigBtn = document.getElementById("trig-btn");
+
+    bootBtn.onclick = async () => {
+      await supersonic.init();
+      await supersonic.loadSynthDef("sonic-pi-prophet");
+    };
+
+    trigBtn.onclick = () => {
+      supersonic.send("/s_new", "sonic-pi-prophet", -1, 0, 0, "note", 40, "release", 8, "cutoff", 70);
+    };
+  </script>
+</body>
+
+</html>
