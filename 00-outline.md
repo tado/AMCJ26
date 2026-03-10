@@ -75,7 +75,23 @@ macOS / Windows どちらでもOK
 
 ---
 
+## SuperCollider IDEの基本をおさらい
+
+サーバー (scsynth) とクライアント (sclang) と開発環境 (IDE) の関係
+
+![](./img/fig-scsynth-sclang.drawio.svg)
+
+---
+
 # 本日の「その先」: 1<br>VScodeからSuperColliderを使う
+
+---
+
+## VScodeからSuperColliderを使う
+
+SuperCollider IDEをVSCodeに置き換える
+
+![width:100%](./img/fig-scsynth-vscode.drawio.svg)
 
 ---
 
@@ -166,6 +182,17 @@ C:\Program Files\SuperCollider-3.14.1
 ```powershell
 > sclang
 ```
+
+---
+
+## VScodeからSuperColliderを使う
+
+VScodeにはSuperCollider IDEのようなHelp Browserは無い
+→ 公式ドキュメントのWeb版を活用しましょう!
+
+- https://doc.sccode.org/
+
+IDEのHelp Browserの中身と同じ内容がWeb上で閲覧できます。
 
 ---
 
