@@ -238,3 +238,93 @@ SynthDefへ ``/n_set`` メッセージを送出して、リアルタイムにパ
 詳細はソースコードを参照 ``gui-example.html``
 
 ![height:400](./img/supersonic-gui.jpg)
+
+---
+
+### シンセサイザー一覧
+
+使用できるシンセサイザーの音を確認できるデモを作成しました!
+
+![height:400](./img/supersonic-synths.jpg)
+
+---
+
+# Super Sonicのシンセイサイザーを自作する
+
+---
+
+## Super Sonicのシンセイサイザーを自作する
+
+SuperSonicのSynthDefは、SuperCollider用に作成したSynthDefをそのまま利用できる!
+
+1箇所のみ修正
+
+```cpp
+SynthDef("synthName",
+  {
+    // SynthDefの内容をここに記述
+    ....
+  }
+).writeDefFile(); // ここだけ変更
+```
+
+writeDefFile()を呼び出すと、SynthDefがscsyndefファイルとして保存される
+``(User Suppoirtフォルダ)/synthdef/synthName.scsyndef``に保存される
+
+---
+
+## Super Sonicのシンセイサイザーを自作する
+
+以前作成した "mySynth" をSuper Sonicで鳴らしてみましょう!
+
+```cpp
+(
+SynthDef("mySynth",
+  {
+    arg out = 0, gate = 1, freq = 440, detune = 1.005, 
+        cutoff = 1200, cutfreq = 1.0, amp = 0.8;
+    ...(中略)...
+    Out.ar(out, sig);
+}).writeDefFile();
+)
+```
+---
+
+## Super Sonicのシンセイサイザーを自作する
+
+保存されたファイルを、Supersonicのsynthdefsフォルダにコピー
+
+- 元: ``(User Suppoirtフォルダ)/synthdef/synthName.scsyndef``
+- 先: ``supersonic/synthdefs/mySynth.scsyndef``
+
+---
+
+## Super Sonicのシンセイサイザーを自作する
+
+あとは、simple.htmlのソースコードを変更して、mySynthを鳴らすようにすればOK!
+
+```javascript
+bootBtn.onclick = async () => {
+  await supersonic.init();
+  // ここを変更 sonic-pi-prophet → mySynth
+  await supersonic.loadSynthDef("mySynth");
+  document.getElementById("metrics").connect(supersonic, { refreshRate: 10 });
+};
+
+trigBtn.onclick = () => {
+  // ここを変更 sonic-pi-prophet → mySynth
+  supersonic.send("/s_new", "mySynth", -1, 0, 0, "note", 40, "release", 8, "cutoff", 90);
+};
+```
+---
+
+## Super Sonicのシンセイサイザーを自作する
+
+あとは、いろいろ工夫次第で無限の可能性が!
+
+- Webブラウザ上で動作するモジュラーシンセサイザー
+- p5.jsなどのグラフィックライブラリと組み合わせて、ビジュアルと連動するシンセサイザー
+- オーディオビジュアルパフォーマンスシステム
+
+...etc.
+
