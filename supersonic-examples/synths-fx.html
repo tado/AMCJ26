@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.8.1/github-markdown-light.min.css"
+    integrity="sha512-X175XRJAO6PHAUi8AA7GP8uUF5Wiv+w9bOi64i02CHKDQBsO1yy0jLSKaUKg/NhRCDYBmOLQCfKaTaXiyZlLrw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    .markdown-body {
+      box-sizing: border-box;
+      min-width: 200px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 45px;
+    }
+
+    @media (max-width: 767px) {
+      .markdown-body {
+        padding: 15px;
+      }
+    }
+
+    .synth-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 10px 0 20px 0;
+    }
+
+    .synth-btn {
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+
+    .synth-btn:hover {
+      background: #ddeeff;
+    }
+
+    .synth-btn.playing {
+      background: #aaddaa;
+    }
+
+    .synth-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .category-label {
+      font-size: 13px;
+      font-weight: bold;
+      color: #555;
+      margin-top: 16px;
+    }
+
+    #status {
+      font-size: 13px;
+      color: #888;
+      margin-left: 12px;
+    }
+
+    .fx-btn {
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      border: 2px dashed #aaa;
+      border-radius: 4px;
+      background: #f0f0f0;
+      color: #555;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .fx-btn:hover {
+      background: #e0e8f0;
+      border-color: #888;
+    }
+
+    .fx-btn.fx-on {
+      background: #1a9a6e;
+      border: 2px solid #0f7a54;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .fx-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .synth-btn.selected {
+      background: #ddeeff;
+      border: 2px solid #3b82f6;
+      color: #1d4ed8;
+      font-weight: bold;
+    }
+
+    .params-panel {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin: 10px 0 20px 0;
+      padding: 12px 16px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      background: #fafafa;
+      min-height: 60px;
+    }
+
+    .params-placeholder {
+      font-size: 13px;
+      color: #aaa;
+      align-self: center;
+    }
+
+    .params-sliders {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 80px 1fr 52px;
+      gap: 4px 10px;
+      align-items: center;
+    }
+
+    .param-label {
+      font-size: 12px;
+      color: #555;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .param-range {
+      width: 100%;
+      accent-color: #3b82f6;
+    }
+
+    .param-value {
+      font-size: 12px;
+      font-family: monospace;
+      color: #333;
+      text-align: right;
+    }
+
+    .play-btn {
+      padding: 12px 20px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      background: #3b82f6;
+      color: #fff;
+      flex-shrink: 0;
+      align-self: stretch;
+      min-width: 80px;
+    }
+
+    .play-btn:hover    { background: #2563eb; }
+    .play-btn.playing  { background: #16a34a; }
+    .play-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  </style>
+
+  <title>SuperSonic Simple Demo</title>
+  <link rel="stylesheet" href="https://unpkg.com/supersonic-scsynth@latest/dist/metrics-dark.css" />
+  <script type="module" src="https://unpkg.com/supersonic-scsynth@latest/dist/metrics_component.js"></script>
+
+  <supersonic-metrics id="metrics"></supersonic-metrics>
+</head>
+
+<body>
+  <article class="markdown-body">
+    <img src="https://sonic-pi.net/supersonic/assets/supersonic_light.png" alt="SuperSonic"
+      style="max-width: 480px; width: 100%; display: block; margin: 0 0 2em;">
+    <h2>いろいろなシンセサイザーとエフェクト (Synth + FX)</h2>
+    <button id="boot-btn">boot</button>
+    <span id="status">not booted</span>
+    <div id="synth-panel"></div>
+    <script type="module">
+      import { SuperSonic } from "./supersonic/supersonic.js";
+
+      const supersonic = new SuperSonic({
+        baseURL: "./supersonic/",
+        synthdefBaseURL: "./supersonic/synthdefs/",
+      });
+
+      // ── バスとグループの定数 ─────────────────────────────────────
+      const PRIVATE_BUS = 16;
+      const INST_GROUP  = 100;
+      const FX_GROUP    = 200;
+      const BYPASS_NODE = 999;
+
+      let activeFx           = {};
+      let fxNodeCounter      = 1000;
+      let selectedInstrument = null;
+      let currentParams      = {};
+
+      // ── 楽器リスト ───────────────────────────────────────────────
+      const INSTRUMENTS = [
+        "beep", "blade", "bnoise", "chipbass", "chiplead", "chipnoise",
+        "cnoise", "dark_ambience", "dpulse", "dsaw", "dtri", "dull_bell",
+        "fm", "gabberkick", "gnoise", "growl", "hollow", "hoover",
+        "kalimba", "mod_dsaw", "mod_fm", "mod_pulse", "mod_saw",
+        "mod_sine", "mod_tri", "noise", "organ_tonewheel",
+        "pluck", "pnoise", "pretty_bell", "prophet", "pulse", "rhodey",
+        "rodeo", "saw", "square", "subpulse", "supersaw", "tb303",
+        "tech_saws", "tri", "zawa",
+      ];
+
+      const DRUMS = [
+        "sc808_bassdrum", "sc808_clap", "sc808_claves",
+        "sc808_closed_hihat", "sc808_congahi", "sc808_congalo",
+        "sc808_congamid", "sc808_cowbell", "sc808_cymbal",
+        "sc808_maracas", "sc808_open_hihat", "sc808_rimshot",
+        "sc808_snare", "sc808_tomhi", "sc808_tomlo", "sc808_tommid",
+      ];
+
+      // ── パラメーター定義 ─────────────────────────────────────────
+      const COMMON_PARAMS = [
+        { name: "note",    label: "note",    min: 0,    max: 127, step: 1,    default: 60  },
+        { name: "amp",     label: "amp",     min: 0,    max: 2,   step: 0.01, default: 0.8 },
+        { name: "pan",     label: "pan",     min: -1,   max: 1,   step: 0.01, default: 0   },
+        { name: "attack",  label: "attack",  min: 0,    max: 4,   step: 0.01, default: 0   },
+        { name: "sustain", label: "sustain", min: 0,    max: 4,   step: 0.01, default: 0   },
+        { name: "release", label: "release", min: 0.01, max: 8,   step: 0.01, default: 2   },
+      ];
+
+      const FILTER_PARAMS = [
+        { name: "cutoff", label: "cutoff", min: 0, max: 130, step: 1,    default: 80  },
+        { name: "res",    label: "res",    min: 0, max: 1,   step: 0.01, default: 0.3 },
+      ];
+      const FM_PARAMS = [
+        { name: "divisor", label: "divisor", min: 0.01, max: 8,  step: 0.01, default: 2 },
+        { name: "depth",   label: "depth",   min: 0,    max: 10, step: 0.01, default: 1 },
+      ];
+      const PULSE_PARAM = [
+        { name: "width", label: "width", min: 0, max: 1, step: 0.01, default: 0.5 },
+      ];
+
+      const SYNTH_EXTRAS = {
+        tb303:        [...FILTER_PARAMS, { name: "wave", label: "wave (0-2)", min: 0, max: 2, step: 1, default: 0 }],
+        prophet:      FILTER_PARAMS,
+        growl:        FILTER_PARAMS,
+        hoover:       FILTER_PARAMS,
+        tech_saws:    FILTER_PARAMS,
+        supersaw:     FILTER_PARAMS,
+        dark_ambience:FILTER_PARAMS,
+        hollow:       FILTER_PARAMS,
+        zawa:         [...FILTER_PARAMS, { name: "phase", label: "phase", min: 0, max: 4, step: 0.01, default: 1 }],
+        mod_pulse:    [...FILTER_PARAMS, ...PULSE_PARAM],
+        mod_saw:      FILTER_PARAMS,
+        mod_dsaw:     FILTER_PARAMS,
+        mod_sine:     FILTER_PARAMS,
+        mod_tri:      FILTER_PARAMS,
+        mod_fm:       [...FM_PARAMS, { name: "mod_phase", label: "mod_phase", min: 0, max: 4, step: 0.01, default: 1 }],
+        fm:           FM_PARAMS,
+        pulse:        PULSE_PARAM,
+        square:       PULSE_PARAM,
+        dpulse:       PULSE_PARAM,
+        subpulse:     [...PULSE_PARAM, { name: "sub_amp", label: "sub_amp", min: 0, max: 1, step: 0.01, default: 1 }],
+      };
+
+      function getParamsFor(name) {
+        return [...COMMON_PARAMS, ...(SYNTH_EXTRAS[name] || [])];
+      }
+
+      // ── FX リスト ─────────────────────────────────────────────────
+      const FX_EFFECTS = [
+        "fx_reverb",      "fx_echo",       "fx_gverb",
+        "fx_flanger",     "fx_bitcrusher", "fx_distortion",
+        "fx_lpf",         "fx_hpf",        "fx_compressor",
+        "fx_pitch_shift", "fx_wobble",     "fx_tremolo",
+        "fx_ring_mod",    "fx_krush",      "fx_octaver",
+        "fx_ixi_techno",  "fx_ping_pong",  "fx_vowel",
+      ];
+
+      // ── UI 構築 ───────────────────────────────────────────────────
+      const panel = document.getElementById("synth-panel");
+
+      // Play ボタン (パラメーターパネルに挿入)
+      const playBtn = document.createElement("button");
+      playBtn.className = "play-btn";
+      playBtn.textContent = "▶ Play";
+      playBtn.disabled = true;
+      playBtn.onclick = () => {
+        if (!selectedInstrument) return;
+        const params = getParamsFor(selectedInstrument);
+        const args = ["sonic-pi-" + selectedInstrument, -1, 1, INST_GROUP];
+        params.forEach(p => args.push(p.name, currentParams[p.name] ?? p.default));
+        args.push("out_bus", PRIVATE_BUS);
+        supersonic.send("/s_new", ...args);
+        playBtn.classList.add("playing");
+        setTimeout(() => playBtn.classList.remove("playing"), 200);
+      };
+
+      // パラメーターパネル
+      const paramsPanel = document.createElement("div");
+      paramsPanel.className = "params-panel";
+      paramsPanel.innerHTML = '<span class="params-placeholder">← シンセを選択するとパラメーターが表示されます</span>';
+
+      function buildParamsPanel(name) {
+        const params = getParamsFor(name);
+        // 共通パラメーターの値は前のシンセから引き継ぎ、新しいパラメーターはデフォルト値
+        const prev = { ...currentParams };
+        currentParams = {};
+        params.forEach(p => { currentParams[p.name] = prev[p.name] ?? p.default; });
+
+        const slidersDiv = document.createElement("div");
+        slidersDiv.className = "params-sliders";
+
+        params.forEach(p => {
+          const decimalPlaces = p.step < 1
+            ? (String(p.step).split(".")[1] || "").length : 0;
+
+          const label = document.createElement("span");
+          label.className = "param-label";
+          label.textContent = p.label;
+
+          const range = document.createElement("input");
+          range.type = "range";
+          range.className = "param-range";
+          range.min = p.min;
+          range.max = p.max;
+          range.step = p.step;
+          range.value = currentParams[p.name];
+
+          const valueDisplay = document.createElement("span");
+          valueDisplay.className = "param-value";
+          valueDisplay.textContent = Number(range.value).toFixed(decimalPlaces);
+
+          range.oninput = () => {
+            currentParams[p.name] = parseFloat(range.value);
+            valueDisplay.textContent = Number(range.value).toFixed(decimalPlaces);
+          };
+
+          slidersDiv.appendChild(label);
+          slidersDiv.appendChild(range);
+          slidersDiv.appendChild(valueDisplay);
+        });
+
+        paramsPanel.innerHTML = "";
+        paramsPanel.appendChild(slidersDiv);
+        paramsPanel.appendChild(playBtn);
+      }
+
+      // シンセ選択
+      function selectInstrument(name, btn) {
+        panel.querySelectorAll(".synth-btn.selected").forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        selectedInstrument = name;
+        buildParamsPanel(name);
+        playBtn.disabled = false;
+      }
+
+      // ── Instruments UI ────────────────────────────────────────────
+      const instHeading = document.createElement("p");
+      instHeading.className = "category-label";
+      instHeading.textContent = "🎹 Instruments";
+      panel.appendChild(instHeading);
+
+      const instGrid = document.createElement("div");
+      instGrid.className = "synth-grid";
+
+      INSTRUMENTS.forEach(name => {
+        const btn = document.createElement("button");
+        btn.className = "synth-btn";
+        btn.dataset.synth = name;
+        btn.textContent = name;
+        btn.disabled = true;
+        btn.onclick = () => selectInstrument(name, btn);
+        instGrid.appendChild(btn);
+      });
+
+      panel.appendChild(instGrid);
+      panel.appendChild(paramsPanel);
+
+      // ── Drums UI ──────────────────────────────────────────────────
+      const drumHeading = document.createElement("p");
+      drumHeading.className = "category-label";
+      drumHeading.textContent = "🥁 Drums (SC808)";
+      panel.appendChild(drumHeading);
+
+      const drumGrid = document.createElement("div");
+      drumGrid.className = "synth-grid";
+
+      DRUMS.forEach(name => {
+        const btn = document.createElement("button");
+        btn.className = "synth-btn";
+        btn.dataset.synth = name;
+        btn.textContent = name;
+        btn.disabled = true;
+        btn.onclick = () => {
+          supersonic.send("/s_new", "sonic-pi-" + name, -1, 1, INST_GROUP,
+            "amp", 0.8, "out_bus", PRIVATE_BUS);
+          btn.classList.add("playing");
+          setTimeout(() => btn.classList.remove("playing"), 300);
+        };
+        drumGrid.appendChild(btn);
+      });
+
+      panel.appendChild(drumGrid);
+
+      // ── FX セクション UI ──────────────────────────────────────────
+      const fxHeading = document.createElement("p");
+      fxHeading.className = "category-label";
+      fxHeading.textContent = "🎛️ Effects (FX)";
+      panel.appendChild(fxHeading);
+
+      const fxGrid = document.createElement("div");
+      fxGrid.className = "synth-grid";
+
+      FX_EFFECTS.forEach(name => {
+        const btn = document.createElement("button");
+        btn.className = "fx-btn";
+        btn.dataset.fx = name;
+        btn.textContent = name.replace("fx_", "");
+        btn.disabled = true;
+        btn.onclick = () => toggleFx(name, btn);
+        fxGrid.appendChild(btn);
+      });
+
+      panel.appendChild(fxGrid);
+
+      // ── FX トグル ────────────────────────────────────────────────
+      function toggleFx(fxName, btn) {
+        if (activeFx[fxName] !== undefined) {
+          supersonic.send("/n_free", activeFx[fxName]);
+          delete activeFx[fxName];
+          btn.classList.remove("fx-on");
+        } else {
+          const nodeId = fxNodeCounter++;
+          activeFx[fxName] = nodeId;
+          supersonic.send("/s_new", "sonic-pi-" + fxName, nodeId, 1, FX_GROUP,
+            "in_bus", PRIVATE_BUS, "out_bus", 0);
+          btn.classList.add("fx-on");
+        }
+      }
+
+      // ── Boot ─────────────────────────────────────────────────────
+      const bootBtn = document.getElementById("boot-btn");
+      const status = document.getElementById("status");
+
+      const allNames = [...INSTRUMENTS, ...DRUMS];
+
+      bootBtn.onclick = async () => {
+        // リブート時に状態をリセット
+        activeFx = {};
+        fxNodeCounter = 1000;
+        selectedInstrument = null;
+        currentParams = {};
+        playBtn.disabled = true;
+        paramsPanel.innerHTML = '<span class="params-placeholder">← シンセを選択するとパラメーターが表示されます</span>';
+        panel.querySelectorAll(".synth-btn.selected").forEach(b => b.classList.remove("selected"));
+        panel.querySelectorAll(".fx-btn").forEach(b => b.classList.remove("fx-on"));
+
+        bootBtn.disabled = true;
+        status.textContent = "booting...";
+
+        await supersonic.init();
+        document.getElementById("metrics").connect(supersonic, { refreshRate: 10 });
+
+        // グループ作成: INST_GROUP → FX_GROUP の順に実行される
+        supersonic.send("/g_new", INST_GROUP, 1, 0);
+        supersonic.send("/g_new", FX_GROUP,   3, INST_GROUP);
+
+        // バイパスノード: bus16 → bus0 にドライ信号を常時出力
+        await supersonic.loadSynthDef("sonic-pi-fx_level");
+        supersonic.send("/s_new", "sonic-pi-fx_level", BYPASS_NODE, 1, FX_GROUP,
+          "in_bus", PRIVATE_BUS, "out_bus", 0, "amp", 0.5);
+
+        status.textContent = "loading synthdefs...";
+        let loaded = 0;
+
+        await Promise.allSettled(
+          allNames.map(name =>
+            supersonic.loadSynthDef("sonic-pi-" + name)
+              .then(() => {
+                loaded++;
+                status.textContent = `loading synthdefs... (${loaded}/${allNames.length})`;
+                const btn = panel.querySelector(`[data-synth="${name}"]`);
+                if (btn) btn.disabled = false;
+              })
+              .catch(() => {
+                const btn = panel.querySelector(`[data-synth="${name}"]`);
+                if (btn) btn.title = "load failed";
+              })
+          )
+        );
+
+        // FX synthdef バッチロード
+        status.textContent = "loading FX synthdefs...";
+        let fxLoaded = 0;
+
+        await Promise.allSettled(
+          FX_EFFECTS.map(name =>
+            supersonic.loadSynthDef("sonic-pi-" + name)
+              .then(() => {
+                fxLoaded++;
+                status.textContent = `loading FX synthdefs... (${fxLoaded}/${FX_EFFECTS.length})`;
+                const btn = panel.querySelector(`[data-fx="${name}"]`);
+                if (btn) btn.disabled = false;
+              })
+              .catch(() => {
+                const btn = panel.querySelector(`[data-fx="${name}"]`);
+                if (btn) btn.title = "load failed";
+              })
+          )
+        );
+
+        status.textContent = `ready — ${loaded} synths, ${fxLoaded} FX loaded`;
+        bootBtn.disabled = false;
+        bootBtn.textContent = "re-boot";
+      };
+    </script>
+
+    <p><a href="index.html">← index.html に戻る</a></p>
+
+  </article>
+</body>
+
+</html>
