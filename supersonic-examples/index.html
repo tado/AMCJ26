@@ -2,34 +2,40 @@
 <html>
 
 <head>
-  <title>SuperSonic Simple Demo</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.8.1/github-markdown-light.min.css" integrity="sha512-X175XRJAO6PHAUi8AA7GP8uUF5Wiv+w9bOi64i02CHKDQBsO1yy0jLSKaUKg/NhRCDYBmOLQCfKaTaXiyZlLrw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    .markdown-body {
+      box-sizing: border-box;
+      min-width: 200px;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 45px;
+    }
+    @media (max-width: 767px) {
+      .markdown-body {
+        padding: 15px;
+      }
+    }
+  </style>
+
+  <title>SuperSonic Examples</title>
 </head>
 
 <body>
-  <h1>SuperSimple SuperSonic</h1>
-  <button id="boot-btn">boot</button>
-  <button id="trig-btn">trigger</button>
+  <article class="markdown-body">
 
-  <script type="module">
-    import { SuperSonic } from "./supersonic/supersonic.js";
+    <img src="https://sonic-pi.net/supersonic/assets/supersonic_light.png" alt="SuperSonic" style="max-width: 480px; width: 100%; display: block; margin: 0 0 2em;">
 
-    const supersonic = new SuperSonic({
-      baseURL: "./supersonic/",
-      synthdefBaseURL: "./supersonic/synthdefs/",
-    });
+    <ul>
+      <li><a href="simple.html">Simple Demo</a></li>
+      <li><a href="synths.html">Synth Demo</a></li>
+    </ul>
 
-    const bootBtn = document.getElementById("boot-btn");
-    const trigBtn = document.getElementById("trig-btn");
-
-    bootBtn.onclick = async () => {
-      await supersonic.init();
-      await supersonic.loadSynthDef("sonic-pi-prophet");
-    };
-
-    trigBtn.onclick = () => {
-      supersonic.send("/s_new", "sonic-pi-prophet", -1, 0, 0, "note", 40, "release", 8, "cutoff", 70);
-    };
-  </script>
+  </article>
 </body>
 
 </html>
