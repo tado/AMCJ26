@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.8.1/github-markdown-light.min.css"
+    integrity="sha512-X175XRJAO6PHAUi8AA7GP8uUF5Wiv+w9bOi64i02CHKDQBsO1yy0jLSKaUKg/NhRCDYBmOLQCfKaTaXiyZlLrw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    .markdown-body {
+      box-sizing: border-box;
+      min-width: 200px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 45px;
+    }
+
+    @media (max-width: 767px) {
+      .markdown-body {
+        padding: 15px;
+      }
+    }
+
+    .synth-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 10px 0 20px 0;
+    }
+
+    .synth-btn {
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #f6f8fa;
+    }
+
+    .synth-btn:hover {
+      background: #ddeeff;
+    }
+
+    .synth-btn.playing {
+      background: #aaddaa;
+    }
+
+    .synth-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .category-label {
+      font-size: 13px;
+      font-weight: bold;
+      color: #555;
+      margin-top: 16px;
+    }
+
+    #status {
+      font-size: 13px;
+      color: #888;
+      margin-left: 12px;
+    }
+  </style>
+
+  <title>SuperSonic Simple Demo</title>
+  <link rel="stylesheet" href="https://unpkg.com/supersonic-scsynth@latest/dist/metrics-dark.css" />
+  <script type="module" src="https://unpkg.com/supersonic-scsynth@latest/dist/metrics_component.js"></script>
+
+  <supersonic-metrics id="metrics"></supersonic-metrics>
+</head>
+
+<body>
+  <article class="markdown-body">
+    <img src="https://sonic-pi.net/supersonic/assets/supersonic_light.png" alt="SuperSonic"
+      style="max-width: 480px; width: 100%; display: block; margin: 0 0 2em;">
+    <h2>いろいろなシンセサイザー (Synth)</h2>
+    <button id="boot-btn">boot</button>
+    <span id="status">not booted</span>
+    <div id="synth-panel"></div>
+    <script type="module">
+      import { SuperSonic } from "./supersonic/supersonic.js";
+
+      const supersonic = new SuperSonic({
+        baseURL: "./supersonic/",
+        synthdefBaseURL: "./supersonic/synthdefs/",
+      });
+
+      // ── カテゴリ定義 ─────────────────────────────────────────────
+      const INSTRUMENTS = [
+        "beep", "blade", "bnoise", "chipbass", "chiplead", "chipnoise",
+        "cnoise", "dark_ambience", "dpulse", "dsaw", "dtri", "dull_bell",
+        "fm", "gabberkick", "gnoise", "growl", "hollow", "hoover",
+        "kalimba", "mod_dsaw", "mod_fm", "mod_pulse", "mod_saw",
+        "mod_sine", "mod_tri", "noise", "organ_tonewheel",
+        "pluck", "pnoise", "pretty_bell", "prophet", "pulse", "rhodey",
+        "rodeo", "saw", "square", "subpulse", "supersaw", "tb303",
+        "tech_saws", "tri", "zawa",
+      ];
+
+      const DRUMS = [
+        "sc808_bassdrum", "sc808_clap", "sc808_claves",
+        "sc808_closed_hihat", "sc808_congahi", "sc808_congalo",
+        "sc808_congamid", "sc808_cowbell", "sc808_cymbal",
+        "sc808_maracas", "sc808_open_hihat", "sc808_rimshot",
+        "sc808_snare", "sc808_tomhi", "sc808_tomlo", "sc808_tommid",
+      ];
+
+      const CATEGORIES = [
+        { label: "🎹 Instruments", names: INSTRUMENTS },
+        { label: "🥁 Drums (SC808)", names: DRUMS },
+      ];
+
+      // ── OSC パラメータ決定 ────────────────────────────────────────
+      function oscArgs(name) {
+        const synthName = "sonic-pi-" + name;
+        if (DRUMS.includes(name)) {
+          // ドラムは note 不要、amp のみ
+          return [synthName, -1, 0, 0, "amp", 0.8];
+        }
+        // 通常の音源シンセ
+        return [synthName, -1, 0, 0, "note", 60, "release", 2, "amp", 0.8];
+      }
+
+      // ── UI 構築 ───────────────────────────────────────────────────
+      const panel = document.getElementById("synth-panel");
+
+      CATEGORIES.forEach(({ label, names }) => {
+        const heading = document.createElement("p");
+        heading.className = "category-label";
+        heading.textContent = label;
+        panel.appendChild(heading);
+
+        const grid = document.createElement("div");
+        grid.className = "synth-grid";
+
+        names.forEach(name => {
+          const btn = document.createElement("button");
+          btn.className = "synth-btn";
+          btn.dataset.synth = name;
+
+          btn.textContent = name;
+          btn.disabled = true;
+
+          btn.onclick = () => {
+            supersonic.send("/s_new", ...oscArgs(name));
+            btn.classList.add("playing");
+            setTimeout(() => btn.classList.remove("playing"), 300);
+          };
+
+          grid.appendChild(btn);
+        });
+
+        panel.appendChild(grid);
+      });
+
+      // ── Boot ─────────────────────────────────────────────────────
+      const bootBtn = document.getElementById("boot-btn");
+      const status = document.getElementById("status");
+
+      const allNames = CATEGORIES.flatMap(c => c.names);
+
+      bootBtn.onclick = async () => {
+        bootBtn.disabled = true;
+        status.textContent = "booting...";
+
+        await supersonic.init();
+        document.getElementById("metrics").connect(supersonic, { refreshRate: 10 });
+
+        status.textContent = "loading synthdefs...";
+        let loaded = 0;
+
+        await Promise.allSettled(
+          allNames.map(name =>
+            supersonic.loadSynthDef("sonic-pi-" + name)
+              .then(() => {
+                loaded++;
+                status.textContent = `loading synthdefs... (${loaded}/${allNames.length})`;
+                const btn = panel.querySelector(`[data-synth="${name}"]`);
+                if (btn) btn.disabled = false;
+              })
+              .catch(() => {
+                // ロード失敗はスキップ
+                const btn = panel.querySelector(`[data-synth="${name}"]`);
+                if (btn) btn.title = "load failed";
+              })
+          )
+        );
+
+        status.textContent = `ready — ${loaded} synthdefs loaded`;
+        bootBtn.disabled = false;
+        bootBtn.textContent = "re-boot";
+      };
+    </script>
+
+    <p><a href="index.html">← index.html に戻る</a></p>
+
+  </article>
+</body>
+
+</html>
