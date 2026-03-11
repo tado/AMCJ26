@@ -15,3 +15,4 @@
 1. **SuperColliderの基本** - Sin波からはじめるサウンドプログラミング ([markdown](https://github.com/tado/AMCJ26/blob/main/01-sc-basic-slides.md), [pdf](https://github.com/tado/AMCJ26/blob/main/01-sc-basic-slides.pdf), [scd](https://github.com/tado/AMCJ26/blob/main/01-sc-basic.scd))
 2. **AIコード生成を活用したvibe coding** - Claude / GitHub Copilot などとの連携 ([markdown](https://github.com/tado/AMCJ26/blob/main/02-vibe-coding-slides.md), [pdf](https://github.com/tado/AMCJ26/blob/main/02-vibe-coding-slides.pdf))
 3. **Strudel + SuperCollider** - ライブコーディングの実践 ([markdown](https://github.com/tado/AMCJ26/blob/main/03-live-coding-slides.md), [pdf](https://github.com/tado/AMCJ26/blob/main/03-live-coding-slides.pdf))
+4. **Super Sonic** - WebブラウザーでSuperColliderを動かす ([markdown](https://github.com/tado/AMCJ26/blob/main/04-supersonic-slides.md), [pdf](https://github.com/tado/AMCJ26/blob/main/04-supersonic-slides.pdf))
