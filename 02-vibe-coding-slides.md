@@ -58,27 +58,40 @@ SuperColliderのコードが出力される
 | ツール | 提供元 | 特徴 |
 |---|---|---|
 | **GitHub Copilot** | GitHub / Microsoft | エディター統合、補完・チャット |
-| **Claude Code** | Anthropic | CLIエージェント、ファイル操作・複数ファイル対応 |
+| **Claude Code** | Anthropic | VSCode拡張、高品質コード出力 |
 | **Gemini Code Assist** | Google | VSCode拡張、Geminiモデル |
-| **ChatGPT / Codex** | OpenAI | Webチャット・API経由 |
+| **ChatGPT Codex** | OpenAI | VSCode拡張 |
 
 → どれもVSCode上のSuperCollider編集で利用可能
+個人的には Claude Code > Copilot > Gemini > ChatGPT
 
 ---
 
 ## VSCodeでVibe Coding — ツールのインストール
 
+もし、下記のどれかのサービスに課金していたら
+
 **GitHub Copilot**
-- GitHubアカウントが必要
 - VSCode拡張マーケットプレイスで `GitHub Copilot` を検索・インストール
 
 **Claude Code**
-- Anthropic アカウントが必要
 - VSCode拡張マーケットプレイスで `Claude Code` を検索・インストール
 
 **Gemini Code Assist**
-- Googleアカウントが必要
 - VSCode拡張マーケットプレイスで `Gemini Code Assist` を検索・インストール
+
+**ChatGPT Codex**
+- VSCode拡張マーケットプレイスで `ChatGPT Codex` を検索・インストール
+
+---
+
+## もし、どのサービスにも課金していない場合は…
+
+WebベースのチャットでClaudeやGemini、ChatGPTを使用してください。
+
+- https://claude.ai/
+- https://gemini.google.com/
+- https://chatgpt.com/
 
 ---
 
