@@ -57,21 +57,14 @@
       const bootBtn = document.getElementById("boot-btn");
       const trigBtn = document.getElementById("trig-btn");
 
-      /*
       bootBtn.onclick = async () => {
         await supersonic.init();
-        await supersonic.loadSynthDef("sonic-pi-prophet");
-      };
-      */
-
-      bootBtn.onclick = async () => {
-        await supersonic.init();
-        await supersonic.loadSynthDef("sonic-pi-prophet");
+        await supersonic.loadSynthDef("sonic-pi-tb303");
         document.getElementById("metrics").connect(supersonic, { refreshRate: 10 });
       };
 
       trigBtn.onclick = () => {
-        supersonic.send("/s_new", "sonic-pi-prophet", -1, 0, 0, "note", 52, "release", 8, "cutoff", 70);
+        supersonic.send("/s_new", "sonic-pi-tb303", -1, 0, 0, "note", 40, "release", 8, "cutoff", 90);
       };
     </script>
 

@@ -205,8 +205,9 @@ IDEのHelp Browserの中身と同じ内容がWeb上で閲覧できます。
 ## 本日の「その先」の内容
 
 - SuperColliderの基本をおさらい - 初歩からステップバイステップで
-- SuperColliderでvibe coding! - AIコード生成ツールを活用
-- Strudel + SuperColliderでライブコーディング
+- 「その先」1: SuperColliderでvibe coding! - AIコード生成ツールを活用
+- 「その先」2: Strudel + SuperColliderでライブコーディング!
+- 「その先」3: WebブラウザーでSuperColliderを動かす! Super Sonic
 
 ---
 

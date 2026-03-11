@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.8.1/github-markdown-light.min.css"
+    integrity="sha512-X175XRJAO6PHAUi8AA7GP8uUF5Wiv+w9bOi64i02CHKDQBsO1yy0jLSKaUKg/NhRCDYBmOLQCfKaTaXiyZlLrw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    .markdown-body {
+      box-sizing: border-box;
+      min-width: 200px;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 45px;
+    }
+
+    @media (max-width: 767px) {
+      .markdown-body {
+        padding: 15px;
+      }
+    }
+
+    .controls {
+      margin-top: 1.5em;
+      display: flex;
+      flex-direction: column;
+      gap: 1em;
+      max-width: 480px;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 1em;
+    }
+
+    .slider-row label {
+      width: 160px;
+      font-size: 0.9em;
+      text-align: right;
+    }
+
+    .slider-row input[type="range"] {
+      flex: 1;
+    }
+
+    .slider-row span {
+      width: 40px;
+      text-align: right;
+      font-size: 0.9em;
+      font-family: monospace;
+    }
+
+    #trig-btn:disabled, #stop-btn:disabled {
+      cursor: default;
+      opacity: 0.5;
+    }
+  </style>
+
+  <title>SuperSonic TB303 Edit Demo</title>
+  <link rel="stylesheet" href="https://unpkg.com/supersonic-scsynth@latest/dist/metrics-dark.css" />
+  <script type="module" src="https://unpkg.com/supersonic-scsynth@latest/dist/metrics_component.js"></script>
+
+  <supersonic-metrics id="metrics"></supersonic-metrics>
+</head>
+
+<body>
+  <article class="markdown-body">
+
+    <img src="https://sonic-pi.net/supersonic/assets/supersonic_light.png" alt="SuperSonic"
+      style="max-width: 480px; width: 100%; display: block; margin: 0 0 2em;">
+
+    <h2>GUI example (tb303)</h2>
+
+    <div style="display: flex; gap: 0.5em; align-items: center; flex-wrap: wrap;">
+      <button id="boot-btn">boot</button>
+      <button id="trig-btn" disabled>trigger</button>
+      <button id="stop-btn" disabled>Stop</button>
+    </div>
+
+    <div class="controls">
+      <div class="slider-row">
+        <label>note</label>
+        <input type="range" id="note-slider" min="0" max="127" value="40" step="1">
+        <span id="note-val">40</span>
+      </div>
+      <div class="slider-row">
+        <label>cutoff</label>
+        <input type="range" id="cutoff-slider" min="30" max="130" value="90" step="1">
+        <span id="cutoff-val">90</span>
+      </div>
+      <div class="slider-row">
+        <label>resonance</label>
+        <input type="range" id="res-slider" min="0" max="1" value="0.5" step="0.01">
+        <span id="res-val">0.50</span>
+      </div>
+      <div class="slider-row">
+        <label>amp</label>
+        <input type="range" id="amp-slider" min="0" max="2" value="1" step="0.01">
+        <span id="amp-val">1.00</span>
+      </div>
+    </div>
+
+    <p style="margin-top: 2em;"><a href="index.html">← index.html に戻る</a></p>
+
+    <script type="module">
+      import { SuperSonic } from "./supersonic/supersonic.js";
+
+      const supersonic = new SuperSonic({
+        baseURL: "./supersonic/",
+        synthdefBaseURL: "./supersonic/synthdefs/",
+      });
+
+      const NODE_ID = 1000;
+      let isPlaying = false;
+
+      const bootBtn = document.getElementById("boot-btn");
+      const trigBtn = document.getElementById("trig-btn");
+      const stopBtn = document.getElementById("stop-btn");
+      const noteSlider = document.getElementById("note-slider");
+      const cutoffSlider = document.getElementById("cutoff-slider");
+      const resSlider = document.getElementById("res-slider");
+      const ampSlider = document.getElementById("amp-slider");
+      const noteVal = document.getElementById("note-val");
+      const cutoffVal = document.getElementById("cutoff-val");
+      const resVal = document.getElementById("res-val");
+      const ampVal = document.getElementById("amp-val");
+
+      bootBtn.onclick = async () => {
+        bootBtn.disabled = true;
+        await supersonic.init();
+        await supersonic.loadSynthDef("sonic-pi-tb303");
+        document.getElementById("metrics").connect(supersonic, { refreshRate: 10 });
+        trigBtn.disabled = false;
+      };
+
+      trigBtn.onclick = () => {
+        if (isPlaying) return;
+        const note = Number(noteSlider.value);
+        const cutoff = Number(cutoffSlider.value);
+        const res = Number(resSlider.value);
+        const amp = Number(ampSlider.value);
+        supersonic.send(
+          "/s_new", "sonic-pi-tb303", NODE_ID, 0, 0,
+          "note", note,
+          "sustain", 9999,
+          "release", 0.1,
+          "cutoff", cutoff,
+          "res", res,
+          "amp", amp
+        );
+        isPlaying = true;
+        stopBtn.disabled = false;
+        trigBtn.disabled = true;
+      };
+
+      stopBtn.onclick = () => {
+        if (!isPlaying) return;
+        supersonic.send("/n_free", NODE_ID);
+        isPlaying = false;
+        stopBtn.disabled = true;
+        trigBtn.disabled = false;
+      };
+
+      noteSlider.oninput = () => {
+        const val = Number(noteSlider.value);
+        noteVal.textContent = val;
+        if (isPlaying) {
+          supersonic.send("/n_set", NODE_ID, "note", val);
+        }
+      };
+
+      cutoffSlider.oninput = () => {
+        const val = Number(cutoffSlider.value);
+        cutoffVal.textContent = val;
+        if (isPlaying) {
+          supersonic.send("/n_set", NODE_ID, "cutoff", val);
+        }
+      };
+
+      resSlider.oninput = () => {
+        const val = Number(resSlider.value);
+        resVal.textContent = val.toFixed(2);
+        if (isPlaying) {
+          supersonic.send("/n_set", NODE_ID, "res", val);
+        }
+      };
+
+      ampSlider.oninput = () => {
+        const val = Number(ampSlider.value);
+        ampVal.textContent = val.toFixed(2);
+        if (isPlaying) {
+          supersonic.send("/n_set", NODE_ID, "amp", val);
+        }
+      };
+</script>
+
+  </article>
+</body>
+
+</html>
