@@ -23,7 +23,9 @@ th, td {
 }
 </style>
 
-# AMCJワークショップ<br>共鳴するコード、SuperColliderで創る音の世界<br>- 実践とその先へ
+## AMCJワークショップ<br>共鳴するコード、SuperColliderで創る音の世界<br>- 実践とその先へ
+
+# 02.<br>その先 1: SuperCollider + VSCodeで<br>Vibe Coding!
 
 2026年3月14日
 田所淳

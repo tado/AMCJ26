@@ -23,14 +23,16 @@ th, td {
 }
 </style>
 
-# AMCJワークショップ<br>共鳴するコード、SuperColliderで創る音の世界<br>- 実践とその先へ
+## AMCJワークショップ<br>共鳴するコード、SuperColliderで創る音の世界<br>- 実践とその先へ
+
+# 04.<br>その先 3: WebブラウザーでSuperColliderを動かす!<br>Super Sonic
 
 2026年3月14日
 田所淳
 
 ---
 
-# 03: 「その先」3<br>WebブラウザーでSuperColliderを動かす!<br>Super Sonic
+
 
 ---
 

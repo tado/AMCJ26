@@ -20,14 +20,12 @@ pre, code {
 }
 </style>
 
-# AMCJワークショップ<br>共鳴するコード、SuperColliderで創る音の世界<br>- 実践とその先へ
+## AMCJワークショップ<br>共鳴するコード、SuperColliderで創る音の世界<br>- 実践とその先へ
+
+# 00.<br>導入: ワークショップのための環境設定
 
 2026年3月14日
 田所淳
-
----
-
-#   00: 準備編
 
 ---
 
@@ -38,6 +36,16 @@ pre, code {
 書籍「共鳴するコード、SuperColliderで創る音の世界」のさらに先を紹介!
 
 もちろん、SuperColliderの初歩からカバーしていきます。
+
+---
+
+## 本日のワークショップの内容
+
+00. 導入: ワークショップのための環境設定
+01. 準備体操: SuperColliderのおさらい - Sin波からはじめるサウンドプログラミング
+02. その先 1: SuperCollider + VSCodeでVibe Coding!
+03. その先 2: Strudel + SuperColliderでLive Coding!
+04. その先 3: Super Sonic - WebブラウザーでSuperColliderを動かす!
 
 ---
 

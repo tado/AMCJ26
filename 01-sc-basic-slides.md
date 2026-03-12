@@ -23,7 +23,9 @@ th, td {
 }
 </style>
 
-# AMCJワークショップ<br>共鳴するコード、SuperColliderで創る音の世界<br>- 実践とその先へ
+## AMCJワークショップ<br>共鳴するコード、SuperColliderで創る音の世界<br> 実践とその先へ
+
+# 01.<br>準備体操: SuperColliderのおさらい<br>- Sin波からはじめるサウンドプログラミング
 
 2026年3月14日
 田所淳
