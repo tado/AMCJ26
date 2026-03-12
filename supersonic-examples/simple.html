@@ -59,12 +59,12 @@
 
       bootBtn.onclick = async () => {
         await supersonic.init();
-        await supersonic.loadSynthDef("sonic-pi-tb303");
+        await supersonic.loadSynthDef("mySynth");
         document.getElementById("metrics").connect(supersonic, { refreshRate: 10 });
       };
 
       trigBtn.onclick = () => {
-        supersonic.send("/s_new", "sonic-pi-tb303", -1, 0, 0, "note", 40, "release", 8, "cutoff", 90);
+        supersonic.send("/s_new", "mySynth", -1, 0, 0, "note", 40, "release", 8, "cutoff", 90);
       };
     </script>
 
