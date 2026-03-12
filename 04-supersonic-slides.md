@@ -32,10 +32,6 @@ th, td {
 
 ---
 
-
-
----
-
 ## Super Sonicとは？
 
 ![](https://c10.patreonusercontent.com/4/patreon-media/p/post/141953467/074709f2c2074e55b6b38995ab1423dd/eyJ3IjoxMDgwfQ%3D%3D/1.png?token-hash=-Q8WaXGTDJjnuyLV1mWVvDVAU4YCyLKlfOuFz1GKQn4%3D&token-time=1773705600)
