@@ -79,18 +79,19 @@ SynthDef("mySynth", {
 ## Hello World — オブジェクトとメソッド
 
 ```cpp
-// オブジェクト.メソッド
+// オブジェクト.メッセージ(メソッド)
+// 文字列オブジェクトにpostlnメッセージを送出
 "Hello world".postln;
 
 // 別の書き方（関数形式）
 postln("Hello world");
 
-// メソッドの連結
+// メッセージの連鎖
 "Hello world".reverse.postln;
 ```
 
 SuperColliderでは**すべてがオブジェクト**。
-`.メソッド名` で操作を連鎖できる。
+`オブジェクト.メッセージ` で操作を連鎖できる。
 
 ---
 
@@ -132,11 +133,11 @@ a.postln;
   }
 )
 
-// 関数を実行
+// 関数を評価
 ~func.value;
 ```
 
-`{ ... }` が**関数（Function）**。`.value` で実行する。
+`{ ... }` が**関数オブジェクト（Function）**。`.value` で評価する。
 
 ---
 
@@ -223,15 +224,34 @@ Server.killAll;
 
 ```cpp
 (
-~func = {
+~sig = {
     var freq = 440, amp = 0.8;
     SinOsc.ar(freq, 0, amp).dup(2);
   }
 )
-~func.play;
+~sig.play;
+~sig.release(2);
 ```
 
-変数に名前をつけることで**コードが読みやすく**なる。
+``~sig`` にサイン波を生成する関数を代入して整理。`~sig.play` で再生
+``.release(2)`` で2秒かけてフェードアウトして停止
+
+---
+
+## 変数に引数を渡す
+
+```cpp
+// 1. まずはデフォルトで鳴らす（変数~sigに Synth オブジェクトを代入）
+~sig = {arg freq = 440, amp = 0.1; SinOsc.ar(freq, 0, amp).play;}
+
+// 2. 後からメッセージを送って値を書き換える
+~sig.set("freq", 660);
+~sig.set("freq", 220, "amp", 0.5);
+
+// 3. 音を止める
+~sig.release(2); // 2秒かけてフェードアウト
+```
+`arg` で引数を定義し、`.set` で値を変更できる
 
 ---
 
