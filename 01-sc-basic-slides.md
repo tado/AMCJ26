@@ -40,7 +40,7 @@ th, td {
 
 <style scoped>pre { font-size: 0.6em; }</style>
 
-```cpp
+```java
 SynthDef("mySynth", {
   arg out = 0, gate = 1, freq = 440, detune = 1.005,
       cutoff = 1200, cutfreq = 1.0, amp = 0.2;
@@ -76,9 +76,9 @@ SynthDef("mySynth", {
 
 ---
 
-## Hello World — オブジェクトとメソッド
+## オブジェクトとメッセージ
 
-```cpp
+```java
 // オブジェクト.メッセージ(メソッド)
 // 文字列オブジェクトにpostlnメッセージを送出
 "Hello world".postln;
@@ -95,11 +95,25 @@ SuperColliderでは**すべてがオブジェクト**。
 
 ---
 
+## オブジェクトとメッセージ
+
+数値 (Int, Float) もメッセージを受けとることができるオブジェクト
+C++などとは異なる
+
+```java
+100.sqrt.postln;  // 100の平方根を計算して表示
+10.pow(3).postln; // 10の3乗を計算して表示
+3.14.round.postln; // 3.14を四捨五入して表示
+4.sqrt.log2.round(0.1).postln; // メッセージ連鎖
+```
+
+---
+
 ## 変数 — var と環境変数
 
 <style scoped>pre { font-size: 0.75em; }</style>
 
-```cpp
+```java
 // ローカル変数: まとめて実行 (Ctrl+Enter)
 (
 var str;
@@ -116,13 +130,14 @@ a = "Hello world";
 a.postln;
 ```
 
-`~変数名` はどこからでもアクセスできる**環境変数**。
+`~変数名` はどこからでもアクセスできる**環境変数**
+1文字の変数は暗黙のうちに環境変数になる
 
 ---
 
 ## 関数の定義と実行
 
-```cpp
+```java
 // 関数を定義して環境変数に代入
 (
   ~func = {
@@ -143,7 +158,7 @@ a.postln;
 
 ## 関数への引数
 
-```cpp
+```java
 // 引数を持つ関数
 (
   ~func = {
@@ -169,7 +184,7 @@ a.postln;
 
 ## サーバーの起動と停止
 
-```cpp
+```java
 // SuperColliderオーディオサーバーを起動
 s.boot;
 
@@ -184,7 +199,7 @@ Server.killAll;
 
 ## 最初の音 — SinOsc
 
-```cpp
+```java
 // サイン波を再生する関数を定義
 ~sine = {SinOsc.ar()};
 // 関数を実行して音を鳴らす
@@ -205,7 +220,7 @@ Server.killAll;
 
 ## 周波数と音量の指定
 
-```cpp
+```java
 // 周波数を指定 SinOsc.ar(freq, phase, mul, add)
 {SinOsc.ar(110).dup(2)}.play;
 
@@ -222,7 +237,7 @@ Server.killAll;
 
 ## 変数を使って整理する
 
-```cpp
+```java
 (
 ~sig = {
     var freq = 440, amp = 0.8;
@@ -240,9 +255,9 @@ Server.killAll;
 
 ## 変数に引数を渡す
 
-```cpp
+```java
 // 1. まずはデフォルトで鳴らす（変数~sigに Synth オブジェクトを代入）
-~sig = {arg freq = 440, amp = 0.1; SinOsc.ar(freq, 0, amp).play;}
+~sig = {arg freq = 440, amp = 0.1; SinOsc.ar(freq, 0, amp)}.play;
 
 // 2. 後からメッセージを送って値を書き換える
 ~sig.set("freq", 660);
@@ -261,7 +276,7 @@ Server.killAll;
 
 ## SynthDefの基本
 
-```cpp
+```java
 // .playより厳密な方法 — SynthDefを定義
 (
   SynthDef("mySynth", {
@@ -281,7 +296,7 @@ Server.killAll;
 
 ## SynthDefを演奏する
 
-```cpp
+```java
 // Synthを生成（音が鳴り始める）
 a = Synth("mySynth");
 
@@ -301,7 +316,7 @@ b.free;
 
 ## SinOsc → Saw波に変更
 
-```cpp
+```java
 (
   SynthDef("mySynth", {
     arg out = 0, freq = 440, amp = 0.8;
@@ -320,7 +335,7 @@ a.free;
 
 ## デチューンで厚みを出す
 
-```cpp
+```java
 (
   SynthDef("mySynth", {
     arg out = 0, freq = 440, detune = 1.005, amp = 0.8;
@@ -341,7 +356,7 @@ a.free;
 
 <style scoped>pre { font-size: 0.7em; }</style>
 
-```cpp
+```java
 (
   SynthDef("mySynth", {
     arg out = 0, freq = 440, detune = 1.005, amp = 0.8;
@@ -366,7 +381,7 @@ a.free;
 
 <style scoped>pre { font-size: 0.7em; }</style>
 
-```cpp
+```java
 (
   SynthDef("mySynth", {
     arg out = 0, gate = 1, freq = 440, detune = 1.005, amp = 0.8;
@@ -393,7 +408,7 @@ a.set(\gate, 0);  // gate=0で音が止まる
 
 <style scoped>pre { font-size: 0.6em; }</style>
 
-```cpp
+```java
 (
   SynthDef("mySynth", {
     arg out = 0, gate = 1, freq = 440, detune = 1.005,
@@ -422,7 +437,7 @@ a.set(\gate, 0);
 
 <style scoped>pre { font-size: 0.6em; }</style>
 
-```cpp
+```java
 (
   SynthDef("mySynth", {
     arg out = 0, gate = 1, freq = 440, detune = 1.005,
@@ -451,7 +466,7 @@ a = Synth("mySynth", [\freq, 110]);  a.set(\gate, 0);
 
 <style scoped>pre { font-size: 0.5em; }</style>
 
-```cpp
+```java
 (
 SynthDef("mySynth", {
   arg out = 0, gate = 1, freq = 440, detune = 1.005,
@@ -485,7 +500,7 @@ a = Synth("mySynth", [\freq, 110]);  a.set(\gate, 0);
 
 <style scoped>pre { font-size: 0.7em; }</style>
 
-```cpp
+```java
 (
 TempoClock.default.tempo = 80/60;
 p = Pbind(
@@ -511,7 +526,7 @@ p.stop;
 
 <style scoped>pre { font-size: 0.4em; }</style>
 
-```cpp
+```java
 (
 TempoClock.default.tempo = 80/60;
 ~p1 = Pbind(

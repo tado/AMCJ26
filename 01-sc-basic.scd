@@ -40,9 +40,16 @@ postln("Hello world");
 
 ---
 
-// メソッドの連結
+// メッセージの連鎖
 "Hello world".reverse.postln;
-postln(reverse("Hello world"));
+
+---
+
+// 数値 (Int, Float) もメッセージを受けとることができるオブジェクト
+100.sqrt.postln;           // 100の平方根を計算して表示
+10.pow(3).postln;          // 10の3乗を計算して表示
+3.14.round.postln;         // 3.14を四捨五入して表示
+4.sqrt.log2.round(0.1).postln; // メッセージ連鎖
 
 ---
 
@@ -106,47 +113,55 @@ Server.killAll;
 
 ---
 
-// 最初の音: サイン波
-(
-  ~func = {
-    SinOsc.ar();
-  }
-)
-~func.play;
+// 最初の音: サイン波を再生する関数を定義
+~sine = {SinOsc.ar()};
+// 関数を実行して音を鳴らす
+~sine.play;
 
 // 1行にまとめる
 {SinOsc.ar()}.play;
 
----
-
-// ステレオで
+// ステレオで再生
 {SinOsc.ar().dup(2)}.play;
-
----
 
 // 周波数を指定 SinOsc.ar(freq, phase, mul, add)
 {SinOsc.ar(110).dup(2)}.play;
 
----
+// 音量(mul)を指定
+{SinOsc.ar(110, 0, 0.8).dup(2)}.play;
 
-// 音量を指定
-{SinOsc.ar(110, 0, 0.5).dup(2)}.play;
-
----
-
-// キーワードで指定
-{SinOsc.ar(freq: 110, mul: 0.5).dup(2)}.play;
+// キーワード引数で指定
+{SinOsc.ar(freq:110, mul:0.8).dup(2)}.play;
 
 ---
 
-// 周波数と音量を変数で指定
+// 変数を使って整理する
 (
-~func = {
-    var freq = 110, amp = 0.5;
+~sig = {
+    var freq = 440, amp = 0.8;
     SinOsc.ar(freq, 0, amp).dup(2);
   }
 )
-~func.play;
+~sig.play;
+~sig.release(2);
+
+---
+
+// 変数に引数を渡す
+// 1. まずはデフォルトで鳴らす（変数~sigに Synth オブジェクトを代入）
+(
+~sig = {
+  arg freq = 440, amp = 0.1; 
+  SinOsc.ar(freq, 0, amp);
+}.play;
+)
+
+// 2. 後からメッセージを送って値を書き換える
+~sig.set("freq", 660);
+~sig.set("freq", 220, "amp", 0.5);
+
+// 3. 音を止める
+~sig.release(2); // 2秒かけてフェードアウト
 
 ---
 
@@ -168,11 +183,18 @@ Server.killAll;
 ---
 
 // SynthDefを演奏
+// Synthを生成（音が鳴り始める）
 a = Synth("mySynth");
-a.set(\freq, 330, \amp, 0.5);
-a.set(\freq, 440, \amp, 0.5);
+
+// パラメータをリアルタイムで変更
+a.set(freq: 330, amp: 0.5);
+a.set(freq: 110, amp: 0.5);
+
+// 音を停止して解放
 a.free;
-b = Synth("mySynth", [freq: 880, amp: 0.4]);
+
+// 引数を指定して生成
+b = Synth("mySynth", [freq: 880, amp: 0.8]);
 b.free;
 
 ---
@@ -191,11 +213,10 @@ a.free;
 
 ---
 
-// 周波数を微妙にずらして重ねてみる
-// 深みのあるサウンドに
+// 周波数を微妙にずらして重ねてみる（デチューンで厚みを出す）
 (
   SynthDef("mySynth", {
-    arg out = 0, freq = 110, detune = 1.005, amp = 0.8;
+    arg out = 0, freq = 440, detune = 1.005, amp = 0.8;
     var sig;
     sig = Saw.ar([freq / detune, freq * detune], amp);
     Out.ar(out, sig);
