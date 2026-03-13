@@ -20,7 +20,7 @@ pre, code {
 }
 </style>
 
-## AMCJワークショップ<br>共鳴するコード、SuperColliderで創る音の世界<br>- 実践とその先へ
+##### AMCJワークショップ<br>共鳴するコード、SuperColliderで創る音の世界 - 実践とその先へ
 
 # 00.<br>導入: ワークショップのための環境設定
 
