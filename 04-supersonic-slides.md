@@ -263,37 +263,39 @@ SynthDef("synthName",
     // SynthDefの内容をここに記述
     ....
   }
-).writeDefFile(); // ここだけ変更
+).writeDefFile; // ここだけ変更 .add → .writeDefFile
 ```
 
-writeDefFile()を呼び出すと、SynthDefがscsyndefファイルとして保存される
-``(User Suppoirtフォルダ)/synthdef/synthName.scsyndef``に保存される
+writeDefFile()を呼び出すと、SynthDefがscsyndefファイルを生成
+``(SCのUser Supportフォルダ)/synthdef/synthName.scsyndef`` に保存される
 
 ---
 
 ## SuperSonicのシンセイサイザーを自作する
 
-以前作成した "mySynth" をSuperSonicで鳴らしてみましょう!
+まずは、簡単なサイン波のSynthDefを作成してみましょう
 
 ```cpp
-(
-SynthDef("mySynth",
-  {
-    arg out = 0, gate = 1, freq = 440, detune = 1.005, 
-        cutoff = 1200, cutfreq = 1.0, amp = 0.8;
-    ...(中略)...
-    Out.ar(out, sig);
-}).writeDefFile();
-)
+SynthDef("simple-sine", {
+    arg note = 60, amp = 1, pan = 0, out_bus = 0;
+    var freq = note.midicps;
+    var snd = SinOsc.ar(freq) * EnvGen.kr(Env.perc(), doneAction: Done.freeSelf);
+    Out.ar(out_bus, Pan2.ar(snd * amp, pan));
+}).writeDefFile;
 ```
+ポイント:
+- SynthDefの最後が.writeDefFileになっていること
+- 引数に、note, amp, pan, out_busなど、必要なパラメーターを定義
+
+
 ---
 
 ## SuperSonicのシンセイサイザーを自作する
 
 保存されたファイルを、Supersonicのsynthdefsフォルダにコピー
 
-- 元: ``(User Suppoirtフォルダ)/synthdef/synthName.scsyndef``
-- 先: ``supersonic/synthdefs/mySynth.scsyndef``
+- 元: ``(User Suppoirtフォルダ)/synthdef/simple-sine.scsyndef``
+- 先: ``supersonic/synthdefs/simple-sine.scsyndef``
 
 ---
 
@@ -305,15 +307,62 @@ SynthDef("mySynth",
 bootBtn.onclick = async () => {
   await supersonic.init();
   // ここを変更 sonic-pi-prophet → mySynth
-  await supersonic.loadSynthDef("mySynth");
+  await supersonic.loadSynthDef("simple-sine");
   document.getElementById("metrics").connect(supersonic, { refreshRate: 10 });
 };
 
 trigBtn.onclick = () => {
   // ここを変更 sonic-pi-prophet → mySynth
-  supersonic.send("/s_new", "mySynth", -1, 0, 0, "note", 40, "release", 8, "cutoff", 90);
+  supersonic.send("/s_new", "simple-sine", -1, 0, 0, "note", 40, "release", 8, "cutoff", 90);
 };
 ```
+---
+
+## SuperSonicのシンセイサイザーを自作する
+
+以前作成した "mySynth" をSupersonic用に書き換えてみましょう!
+- argにnote, amp, pan, outを追加
+- エンベロープをEnv.perc()に変更
+
+```cpp
+SynthDef("mySynth",{
+    arg note = 60, amp = 1, pan = 0, out = 0, gate = 1, attack = 0.01, release = 1.0, detune = 1.005, cutoff = 1200, cutfreq = 1.0;
+    var freq, sig, cutsig, env;
+    freq = note.midicps;
+    sig = Mix.ar([
+      Saw.ar([freq / detune, freq * detune]) 
+      , Saw.ar([freq / detune, freq * detune] / detune)
+      , Saw.ar([freq / detune, freq * detune] / detune / 2.0)
+    ]) / 3.0;
+    env = EnvGen.kr(Env.perc(attack, release), gate, doneAction: 2);
+    sig = sig * env * amp;
+    cutsig = LFNoise2.kr([cutfreq, cutfreq * 1.5]).range(cutoff * 0.25, cutoff * 1.5);
+    sig = MoogFF.ar(sig, cutsig, mul: 2.0);
+    sig = GVerb.ar(sig, 100, 1.0);
+    Out.ar(out, sig);
+}).writeDefFile;
+```
+
+---
+
+## SuperSonicのシンセイサイザーを自作する
+
+呼び出し側のJavaScriptを変更
+- SynthDef名を "mySynth" に変更
+- note, release, cutoffなど、mySynthの引数に合わせて変更
+
+```javascript
+  // ...中略...
+  bootBtn.onclick = async () => {
+    await supersonic.init();
+    await supersonic.loadSynthDef("mySynth");
+    document.getElementById("metrics").connect(supersonic, { refreshRate: 10 });
+  };
+  trigBtn.onclick = () => {
+  supersonic.send("/s_new", "mySynth", -1, 0, 0, "note", 40, "release", 5);
+};
+```
+
 ---
 
 ## SuperSonicのシンセイサイザーを自作する
@@ -330,7 +379,8 @@ trigBtn.onclick = () => {
 
 ## SuperSonicのシンセイサイザーを自作する
 
-シンセサイザー、パラメーターコントロール、エフェクトなど、いろいろ詰め込んだサンプル作ってみました!
+いろいろ機能を詰め込んだサンプル作ってみました!
+→ synth-fx.html
 
 ![height:400](./img/supersonic-synth-fx.jpg)
 
