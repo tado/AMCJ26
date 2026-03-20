@@ -4,14 +4,14 @@ paginate: true
 ---
 <style>
 :root {
-  font-family: 'Noto Sans JP';
+  font-family: 'Noto Sans JP', 'Hiragino Sans';
   color: #444;
 }
 :root ol {
   list-style-type: decimal;
 }
 :root h1, h2, h3, h4, h5, h6{
-  font-family: 'Noto Sans JP Black';
+  font-family: 'Noto Sans JP Black', 'Hiragino Sans W8';
   color: #2277cc;
 }
 pre, code {
