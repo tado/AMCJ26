@@ -22,9 +22,6 @@ pre, code {
   font-family: 'JetBrains Mono Slashed', 'Noto Sans JP';
   line-height: 1.3;
 }
-th, td {
-  font-size: 0.8em;
-}
 </style>
 
 ##### AMCJワークショップ<br>共鳴するコード、SuperColliderで創る音の世界 - 実践とその先へ
