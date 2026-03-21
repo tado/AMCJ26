@@ -3,18 +3,19 @@ marp: true
 paginate: true
 ---
 <style>
-:root {
+section {
   font-family: 'Hiragino Sans W4';
   color: #444;
+  font-size: 24px;
 }
-:root b, :root strong {
+b, strong {
   font-family: 'Hiragino Sans W7';
 }
-:root ol {
+ol {
   list-style-type: decimal;
 }
-:root h1, h2, h3, h4, h5, h6{
-  font-family: 'Hiragino Sans W8';
+h1, h2, h3, h4, h5, h6{
+  font-family: 'Hiragino Sans W7';
   color: #2277cc;
 }
 pre, code {
